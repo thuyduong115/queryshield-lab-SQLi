@@ -16,4 +16,3 @@ docker run --rm \
 
 docker compose -f "$COMPOSE_FILE" run --rm --no-deps web \
   sh -lc "pnpm lint && pnpm format:check && pnpm test && pnpm build"
-

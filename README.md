@@ -85,4 +85,3 @@ harness/STATUS.md  Bằng chứng triển khai và kiểm thử thực tế
 - P0 không chứa endpoint khai thác hay SQL không tham số hóa.
 
 Phạm vi sản phẩm nằm tại [`docs/00-SCOPE.md`](docs/00-SCOPE.md). Roadmap thực thi dành riêng cho Codex và ghi chú phiên làm việc chỉ được giữ cục bộ, không đưa lên GitHub.
-

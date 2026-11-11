@@ -37,4 +37,3 @@ Hoặc chạy riêng từng ứng dụng theo các lệnh trong `README.md`. Ch�
 - Mã SQL không an toàn chỉ được phép xuất hiện tại adapter đã quy định ở P1.
 - Không push `.env`, dữ liệu thật, credential, log chứa secret hoặc kết quả demo giả lập.
 - Không push hoặc triển khai endpoint SQLi lên môi trường public.
-
