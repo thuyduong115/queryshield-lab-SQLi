@@ -1,0 +1,70 @@
+name: queryshield-lab
+
+services:
+  db:
+    image: postgres:17.4-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-queryshield}
+      POSTGRES_USER: ${POSTGRES_USER:-queryshield}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-queryshield_local_only}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - queryshield-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - queryshield-private
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ../apps/api
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      LAB_ENABLE_UNSAFE: ${LAB_ENABLE_UNSAFE:-false}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://queryshield:queryshield_local_only@db:5432/queryshield}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - queryshield-private
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../apps/web
+    ports:
+      - "127.0.0.1:${WEB_PORT:-5173}:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:5173/"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - queryshield-private
+    restart: unless-stopped
+
+networks:
+  queryshield-private:
+    driver: bridge
+
+volumes:
+  queryshield-postgres:
+

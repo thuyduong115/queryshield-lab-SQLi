@@ -1,0 +1,44 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+.vite/
+coverage/
+playwright-report/
+test-results/
+
+# Editor / OS
+.vscode/*.local.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local DB / logs
+*.log
+*.sqlite3
+pgdata/
+.tmp/
+
+# Local AI/Codex working instructions and execution notes
+AGENTS.md
+CODEX_BOOTSTRAP.md
+08-ROADMAP.md
+docs/08-ROADMAP.md
+prompts/
+harness/
