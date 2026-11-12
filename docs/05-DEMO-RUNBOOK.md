@@ -5,7 +5,7 @@ Prove the causal difference between untrusted input **inserted into SQL syntax**
 
 ## Setup (local only)
 1. Enable unsafe lab with `.env` settings `APP_ENV=local` and `LAB_ENABLE_UNSAFE=true` (only on the local development computer).
-2. Launch Compose services bound to `127.0.0.1`; seed demo identities.
+2. Launch Compose services bound to `127.0.0.1` (`docker compose --env-file .env -f infra/compose.yaml up --build`); the one-shot `lab-admin` service seeds demo identities. Reset with `docker compose --env-file .env -f infra/compose.yaml run --rm lab-admin reset`.
 3. Confirm `/api/v1/health` returns success and DBeaver can inspect fake fixture data if local DB port is enabled.
 4. Open `/lab/login-bypass` and optional Postman collection. Demonstrate on fake users only.
 5. If the lab guard is off, show `LAB_DISABLED` instead of trying to bypass it.
@@ -86,3 +86,6 @@ The unsafe query must use read-only DB access, only an exact fixed fixture table
 ## Failure handling
 - If demo cannot reproduce, show actual failure and debug fixtures/SQL/guard. Never flip booleans in UI or return a fabricated success to make presentation work.
 - Keep a sanitized evidence screenshot/record from the last successful local run as an **explicitly labeled recording**, not represented as a live query.
+
+## Web walkthrough (implemented)
+Open `/demo`. Steps 1–3 are Part 1 (vulnerable baseline, wrong password, attack + link to the simulated SecureDesk admin dashboard); step 4 shows the code change; steps 5–7 are Part 2 (same payload in secure mode, valid login preserved, automated suite). Use ← → to move between steps; each "Chạy truy vấn thật" sends a real request and renders the returned run.

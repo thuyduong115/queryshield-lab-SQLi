@@ -1,87 +1,84 @@
 # QueryShield Lab
 
-QueryShield Lab là phòng thí nghiệm SQL Injection chạy hoàn toàn trên máy cục bộ. Dự án dùng một website React, một API FastAPI và một PostgreSQL 17. Hiện repository đã triển khai **P0 — nền tảng an toàn**, chưa có mã SQLi chủ ý.
+QueryShield Lab là phòng thí nghiệm SQL Injection chạy hoàn toàn trên máy cục bộ. Bên trong có **SecureDesk**, một cổng hỗ trợ nội bộ giả lập đóng vai trò hệ thống bị tấn công. Demo gồm hai phần:
+
+1. **Lỗ hổng và cách tấn công:** backend nối chuỗi input vào câu SQL; payload `admin' -- ` đăng nhập vào `admin` với mật khẩu sai.
+2. **Phòng thủ và tấn công lại:** cùng truy vấn nhưng bind tham số bằng Psycopg; gửi lại đúng payload đó thì bị từ chối.
+
+Mọi kết quả đến từ PostgreSQL thật, có run ID và thời gian đo được lưu lại.
 
 ## Yêu cầu
 
-- Docker Desktop có Docker Compose v2.
-- Nếu chạy từng ứng dụng ngoài Docker: Python 3.12+, `uv`, Node.js 22 và `pnpm` 10.
+Chỉ cần **Docker** (Docker Desktop hoặc Docker trong WSL) với Docker Compose v2. Toàn bộ build, cài dependency, test và E2E đều chạy trong container; không cần cài Python, Node, uv hay pnpm trên máy.
 
 ## Khởi động bằng Docker
 
 ```powershell
 Copy-Item .env.example .env
+# Mở .env, đặt APP_ENV=local và LAB_ENABLE_UNSAFE=true để bật Phần 1 (chỉ trên máy của bạn).
 wsl docker compose --env-file .env -f infra/compose.yaml up --build
 ```
 
-Sau khi các health check hoàn tất:
+Compose sẽ:
 
-- Website: http://127.0.0.1:5173
+- khởi động PostgreSQL 17;
+- chạy `lab-admin bootstrap` một lần: tạo schema `demo`/`lab`, hai role tối thiểu quyền và seed fixture;
+- khởi động API (FastAPI) và web (React + Vite).
+
+Sau khi các health check hoàn tất (cổng mặc định, đổi được trong `.env`):
+
+- Website: http://127.0.0.1:5173 → mục **Kịch bản demo**
 - API health: http://127.0.0.1:8000/api/v1/health
 - OpenAPI: http://127.0.0.1:8000/docs
-- PostgreSQL: `127.0.0.1:5433`
+- PostgreSQL cho DBeaver: `127.0.0.1:5433`
 
-Các cổng đều chỉ bind vào loopback. Giá trị mặc định là `APP_ENV=development` và `LAB_ENABLE_UNSAFE=false`.
+Mọi cổng chỉ bind vào loopback. Nếu `.env` để mặc định (`LAB_ENABLE_UNSAFE=false`), chế độ dễ bị tấn công trả về `403 LAB_DISABLED`; chế độ tham số hóa vẫn chạy.
 
-Tắt môi trường:
-
-```powershell
-wsl docker compose --env-file .env -f infra/compose.yaml down
-```
-
-Chỉ thêm `--volumes` khi thực sự muốn xóa toàn bộ dữ liệu PostgreSQL cục bộ.
-
-## Phát triển API
+## Reset dữ liệu (chỉ CLI, không có endpoint HTTP)
 
 ```powershell
-Set-Location apps/api
-uv sync
-uv run uvicorn queryshield_api.main:app --reload
-uv run pytest
-uv run ruff check .
-uv run ruff format --check .
+wsl docker compose --env-file .env -f infra/compose.yaml run --rm lab-admin reset   # khôi phục fixture, xóa lịch sử chạy
+wsl docker compose --env-file .env -f infra/compose.yaml run --rm lab-admin check   # xem phiên bản dữ liệu và số dòng
 ```
 
-## Phát triển web
+CLI từ chối mọi host ngoài `db`/`localhost` và mọi database ngoài `queryshield_lab`/`queryshield_lab_test`.
 
-```powershell
-Set-Location apps/web
-pnpm install
-pnpm dev
-pnpm test
-pnpm lint
-pnpm format:check
-pnpm build
-```
-
-## Kiểm tra P0 trong WSL
-
-Repository có một lệnh kiểm tra tập trung, tương tự quy trình của dự án tham chiếu:
+## Kiểm thử (tất cả trong Docker)
 
 ```bash
-wsl bash scripts/verify-p0.sh
+wsl bash scripts/test-api.sh    # Ruff + Pytest: unit + tích hợp PostgreSQL trên database queryshield_lab_test riêng
+wsl bash scripts/test-web.sh    # ESLint + Prettier + Vitest + Vite build
+wsl bash scripts/test-e2e.sh    # Playwright trên stack đang chạy (cần APP_ENV=local, LAB_ENABLE_UNSAFE=true)
 ```
 
-Lệnh này build image, chạy Ruff + Pytest cho API và ESLint + Prettier + Vitest + Vite build cho web.
+Postman: import `tools/postman/QueryShield-Lab.postman_collection.json` và `tools/postman/Local.postman_environment.json`. Có thể chạy không cần cài Postman, xem [tools/postman/README.md](tools/postman/README.md).
 
-Khi chạy web ngoài Compose, đặt `VITE_API_PROXY_TARGET=http://127.0.0.1:8000` trước lệnh `pnpm dev`. Trong Compose, proxy mặc định tự dùng `http://api:8000`.
-
-## Cấu trúc P0
+## Cấu trúc
 
 ```text
-apps/api/          FastAPI, cấu hình an toàn và unit test
-apps/web/          React + TypeScript + Vite và component test
-infra/compose.yaml PostgreSQL 17, API và web trên mạng Docker riêng
-tests/             Vị trí E2E ở phase sau
-tools/postman/     Vị trí collection Postman ở P2
-harness/STATUS.md  Bằng chứng triển khai và kiểm thử thực tế
+apps/api/src/queryshield_api/
+  core/                         lỗi chuẩn hóa, guard an toàn
+  db/                           schema, fixture, kết nối, CLI quản trị (bootstrap/reset/check)
+  modules/laboratory/           router, service, inspector, adapters/secure.py, adapters/vulnerable.py
+  modules/experiments/          catalog T01–T08, runner, lưu bằng chứng
+  modules/securedesk/           phiên mô phỏng của SecureDesk (không cấp token)
+apps/web/src/
+  app/ components/ lib/         khung, thành phần dùng chung, API client
+  features/demo/                kịch bản 2 phần từng bước
+  features/laboratory/          lab tự do
+  features/comparison/          so sánh trước/sau
+  features/test-results/        bộ kiểm thử và lịch sử chạy
+  features/securedesk/          ứng dụng mục tiêu giả lập
+infra/compose.yaml              db, lab-admin, api, web trên mạng Docker riêng
+tests/e2e/                      Playwright
+tools/postman/                  collection + environment đã làm sạch
 ```
 
 ## Ranh giới bảo mật
 
-- Không bật `LAB_ENABLE_UNSAFE` ngoài `APP_ENV=local`.
-- Không triển khai lên máy chủ public.
-- Không dùng thông tin đăng nhập, dữ liệu khách hàng hoặc mục tiêu bên ngoài thật.
-- P0 không chứa endpoint khai thác hay SQL không tham số hóa.
+- Mã SQL nối chuỗi chỉ tồn tại ở `apps/api/src/queryshield_api/modules/laboratory/adapters/vulnerable.py`, chỉ được import khi `APP_ENV=local` **và** `LAB_ENABLE_UNSAFE=true`. Một test tĩnh kiểm tra không có chỗ nào khác nội suy SQL.
+- Adapter đăng nhập chạy trên role `qs_lab_query`: chỉ `SELECT` bảng `demo.users`, giao dịch chỉ đọc, timeout 2 s. Lịch sử chạy lưu qua role `qs_lab_app`, không đọc được `password_hash`.
+- Không lưu mật khẩu, body request, câu SQL hay input tự do. Đăng nhập SecureDesk thành công chỉ là mô phỏng: không cookie, không token.
+- Không triển khai lên máy chủ public. Chặn được một payload không có nghĩa toàn hệ thống miễn nhiễm SQL Injection.
 
-Phạm vi sản phẩm nằm tại [`docs/00-SCOPE.md`](docs/00-SCOPE.md). Roadmap thực thi dành riêng cho Codex và ghi chú phiên làm việc chỉ được giữ cục bộ, không đưa lên GitHub.
+Tài liệu chi tiết: [docs/00-SCOPE.md](docs/00-SCOPE.md), [docs/05-DEMO-RUNBOOK.md](docs/05-DEMO-RUNBOOK.md).

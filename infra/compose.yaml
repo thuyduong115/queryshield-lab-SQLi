@@ -1,18 +1,26 @@
 name: queryshield-lab
 
+# LOCAL-ONLY LAB. Every published port binds 127.0.0.1. Never deploy this stack publicly.
+# Credentials below are local-only defaults for disposable containers, not real secrets.
+
+x-lab-db-passwords: &lab-db-passwords
+  LAB_QUERY_DB_PASSWORD: ${LAB_QUERY_DB_PASSWORD:-qs_lab_query_local_only}
+  LAB_APP_DB_PASSWORD: ${LAB_APP_DB_PASSWORD:-qs_lab_app_local_only}
+
 services:
   db:
     image: postgres:17.4-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-queryshield}
+      POSTGRES_DB: queryshield_lab
       POSTGRES_USER: ${POSTGRES_USER:-queryshield}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-queryshield_local_only}
     ports:
+      # Optional DBeaver access, loopback only.
       - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
     volumes:
       - queryshield-postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -21,18 +29,41 @@ services:
       - queryshield-private
     restart: unless-stopped
 
+  # One-shot local administration: schema, least-privileged roles, fixtures.
+  # Default command is an idempotent bootstrap. Reset with:
+  #   docker compose -f infra/compose.yaml run --rm lab-admin reset
+  # Holds the privileged URL; the API never receives it. No HTTP surface.
+  lab-admin:
+    build:
+      context: ../apps/api
+    entrypoint: ["uv", "run", "--no-dev", "python", "-m", "queryshield_api.db.admin"]
+    command: ["bootstrap"]
+    environment:
+      <<: *lab-db-passwords
+      ADMIN_DATABASE_URL: postgresql://${POSTGRES_USER:-queryshield}:${POSTGRES_PASSWORD:-queryshield_local_only}@db:5432/postgres
+      LAB_DATABASE_NAME: queryshield_lab
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - queryshield-private
+    restart: "no"
+
   api:
     build:
       context: ../apps/api
     environment:
       APP_ENV: ${APP_ENV:-development}
       LAB_ENABLE_UNSAFE: ${LAB_ENABLE_UNSAFE:-false}
-      DATABASE_URL: ${DATABASE_URL:-postgresql://queryshield:queryshield_local_only@db:5432/queryshield}
+      LAB_QUERY_DATABASE_URL: postgresql://qs_lab_query:${LAB_QUERY_DB_PASSWORD:-qs_lab_query_local_only}@db:5432/queryshield_lab
+      LAB_APP_DATABASE_URL: postgresql://qs_lab_app:${LAB_APP_DB_PASSWORD:-qs_lab_app_local_only}@db:5432/queryshield_lab
     ports:
       - "127.0.0.1:${API_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
+      lab-admin:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
       interval: 5s

@@ -55,7 +55,9 @@ Use migrations and idempotent seed operations. In P0/P1, plain SQL migration scr
 | `simulated_user` | TEXT NULL | allowed username from synthetic fixtures |
 | `duration_ms` | INT | measured, not invented |
 | `created_at` | TIMESTAMPTZ | server timestamp |
-| `result_code` | TEXT | `AUTHENTICATED`, `DENIED`, `LAB_DISABLED`, `ERROR` |
+| `result_code` | TEXT | `AUTHENTICATED`, `DENIED`, `QUERY_ERROR`, `LAB_DISABLED`, `VALIDATION_ERROR` |
+| `suite_id`, `expected_result`, `passed` | NULL-able | set only for suite runs; `passed` is NULL for skipped cases |
+| `rows_returned`, `sqlstate`, `simulated_role`, `dataset_version`, `request_id` | | observed metadata; `sqlstate` only for `QUERY_ERROR` |
 
 Do **not** persist submitted password, whole request body, raw SQL containing a password, session tokens, or uncontrolled free-text input. If storing username for comparisons, prefer a known fixture ID or a non-reversible digest.
 
@@ -90,3 +92,9 @@ Unsafe adapter constructs semantically equivalent query but with interpolated va
 - Seed script is idempotent; reset recreates fixed identities and test cases, clears only experiment data, not host files or unrelated DBs.
 - `T01`–`T08` use stable fixture IDs. Compare expected with actual after a fresh reset.
 - Document database extension availability (`pgcrypto`) and fail with actionable message if missing.
+
+## Implementation notes (P1)
+- Schema DDL: `apps/api/src/queryshield_api/db/schema.py`; fixtures: `db/fixtures.py`; test catalog: `modules/experiments/catalog.py`.
+- `demo.users` also has `display_name`, `department`; `demo.tickets` has `priority`, `visibility` (`owner`/`internal`) for the simulated dashboard. `lab.dataset` stores the fixture version (`fixtures-v1`).
+- Roles: `qs_lab_query` (= `lab_readonly`: SELECT `demo.users`, `default_transaction_read_only=on`, `statement_timeout=2s`), `qs_lab_app` (= `lab_writer`: SELECT/INSERT `lab.runs`, SELECT metadata, column-level SELECT on `demo.users` without `password_hash`, SELECT `demo.tickets`). The Compose superuser is used only by the `lab-admin` CLI service.
+- `lab.test_cases.expected_*` store outcome codes (not booleans) so T05 can record the documented vulnerable `QUERY_ERROR` (SQLSTATE 42601).

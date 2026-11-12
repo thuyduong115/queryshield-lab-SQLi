@@ -1,75 +1,39 @@
-import { useEffect, useState } from 'react'
+import { Route, Routes } from 'react-router'
 
-type Health = {
-  status: string
-  environment: string
-  unsafeLabEnabled: boolean
-}
+import { LabShell } from './app/LabShell'
+import { ComparisonPage } from './features/comparison/ComparisonPage'
+import { DemoPage } from './features/demo/DemoPage'
+import { LabPage } from './features/laboratory/LabPage'
+import { OverviewPage } from './features/overview/OverviewPage'
+import { SecureDeskDashboard } from './features/securedesk/SecureDeskDashboard'
+import { SecureDeskLogin } from './features/securedesk/SecureDeskLogin'
+import { TestResultsPage } from './features/test-results/TestResultsPage'
+import { HealthProvider } from './lib/health'
 
-type ApiState =
-  | { kind: 'loading' }
-  | { kind: 'ready'; health: Health }
-  | { kind: 'error' }
-
-function App() {
-  const [apiState, setApiState] = useState<ApiState>({ kind: 'loading' })
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    fetch('/api/v1/health', { signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw new Error('API health check failed')
-        return response.json() as Promise<Health>
-      })
-      .then((health) => setApiState({ kind: 'ready', health }))
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') return
-        setApiState({ kind: 'error' })
-      })
-
-    return () => controller.abort()
-  }, [])
-
+function NotFound() {
   return (
-    <main className="shell">
-      <section className="hero" aria-labelledby="page-title">
-        <p className="eyebrow">Phòng thí nghiệm bảo mật chạy cục bộ</p>
-        <h1 id="page-title">QueryShield Lab</h1>
-        <p className="lead">
-          Nền tảng học SQL Injection qua thực nghiệm tấn công, phòng thủ và kiểm
-          chứng có thể tái lập.
-        </p>
-
-        <div className="status-card" aria-live="polite">
-          <span className={`status-dot status-dot--${apiState.kind}`} />
-          <div>
-            <strong>
-              {apiState.kind === 'loading' && 'Đang kiểm tra API…'}
-              {apiState.kind === 'ready' && 'API đang hoạt động'}
-              {apiState.kind === 'error' && 'Không thể kết nối API'}
-            </strong>
-            <p>
-              {apiState.kind === 'ready'
-                ? `Môi trường: ${apiState.health.environment} · Chế độ không an toàn: ${apiState.health.unsafeLabEnabled ? 'bật' : 'tắt'}`
-                : 'Hãy khởi động đầy đủ các dịch vụ bằng Docker Compose.'}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="phase-card">
-        <span>P0</span>
-        <div>
-          <h2>Nền tảng an toàn đã sẵn sàng</h2>
-          <p>
-            Chức năng mô phỏng SQL Injection sẽ được bổ sung ở các giai đoạn
-            sau.
-          </p>
-        </div>
-      </section>
-    </main>
+    <section className="page">
+      <h1>Không tìm thấy trang</h1>
+      <p>Đường dẫn này không tồn tại trong QueryShield Lab.</p>
+    </section>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <HealthProvider>
+      <Routes>
+        <Route element={<LabShell />}>
+          <Route index element={<OverviewPage />} />
+          <Route path="demo" element={<DemoPage />} />
+          <Route path="lab/login-bypass" element={<LabPage />} />
+          <Route path="lab/comparison" element={<ComparisonPage />} />
+          <Route path="lab/test-results" element={<TestResultsPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+        <Route path="app/login" element={<SecureDeskLogin />} />
+        <Route path="app/dashboard" element={<SecureDeskDashboard />} />
+      </Routes>
+    </HealthProvider>
+  )
+}

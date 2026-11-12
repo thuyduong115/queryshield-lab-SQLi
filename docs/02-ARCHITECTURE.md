@@ -83,7 +83,7 @@ sequenceDiagram
 - `infra/compose.yaml`: web and API bind only `127.0.0.1` on host; Postgres remains in private Compose network (optional `127.0.0.1:5433` access for DBeaver, disabled by default if possible).
 - Two DB users: privileged migration/seed (used from CLI only) and runtime lab **read-only** role; persisted run records use a separate narrowly privileged role/connection or separate storage module, not the vulnerable adapter's DB role.
 - `LAB_ENABLE_UNSAFE=false` default. Vulnerable execution requires BOTH `APP_ENV=local` and `LAB_ENABLE_UNSAFE=true`; refuse otherwise. No arbitrary query API.
-- Reset via `tools/reset_lab.py` invoked by local operator, not an HTTP endpoint.
+- Reset via the `lab-admin` Compose service (`python -m queryshield_api.db.admin reset`, see ADR-016) invoked by the local operator, not an HTTP endpoint.
 
 ## Dependencies and architecture boundaries
 - `router` -> `service` -> `adapter`; adapter must not depend on web framework.

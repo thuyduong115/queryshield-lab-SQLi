@@ -12,6 +12,7 @@ Base URL: `http://127.0.0.1:8000/api/v1` (local only). JSON content type. All ti
 | POST | `/labs/login-bypass/tests/run` | Run predefined non-destructive comparative cases | P4 |
 | GET | `/labs/runs/{run_id}` | Read redacted run summary | P2/P4 |
 | GET | `/labs/login-bypass/results` | Last N sanitized run summaries | P4 |
+| GET | `/securedesk/simulated-session/{run_id}` | Simulated SecureDesk profile + tickets for an authenticated run (no token) | P3 |
 
 **Not allowed:** `/execute-sql`, arbitrary URLs/targets, `/admin/reset` HTTP route, bulk arbitrary payload endpoints.
 
@@ -78,3 +79,11 @@ Suggested statuses: 400 malformed request, 403 lab guard denied, 404 missing sce
 
 ## Versioning
 If a breaking change is essential, update this contract, OpenAPI implementation, Postman collection and tests together. Never silently change modes/field names.
+
+## Implemented response details (v1)
+- `execute` response adds: `outcome` (`AUTHENTICATED` | `DENIED` | `QUERY_ERROR`), `authentication.rows_returned`, `inspector.segments` (`{text, origin: template|username|password|placeholder, syntax: code|string|comment}`), `inspector.observations` (codes such as `PASSWORD_CHECK_COMMENTED_OUT`, `VALUES_SENT_SEPARATELY`), `query_error {sqlstate, category}`, `dataset_version`, `simulation_notice`.
+- A PostgreSQL parse error caused by input in **vulnerable** mode is an observed experiment outcome: HTTP 200, `outcome=QUERY_ERROR`, `authenticated=false`, only the SQLSTATE is returned (never the server message). Any DB error in secure mode is a 500.
+- `403 LAB_DISABLED` includes `run_id` when the refusal could be recorded.
+- 422 bodies list only `{field, issue}`; submitted values are never echoed.
+- Every response carries `X-Request-ID` and `Cache-Control: no-store`; no response sets cookies.
+- Suite results: `{test_case_id, mode, expected_outcome, actual_outcome, expected_authenticated, actual_authenticated, status: passed|failed|skipped, passed, run_id, duration_ms}`.
