@@ -45,3 +45,12 @@ These are **initial project design choices**, not assertions about what already 
 ### ADR-016 — One-shot `lab-admin` Compose service for bootstrap/reset
 - Date: 2026-11-13
 - Decision: the privileged DB URL lives only in the `lab-admin` service (`python -m queryshield_api.db.admin bootstrap|reset|check`), which runs to completion before the API starts. No HTTP reset route.
+
+### ADR-017 — Mở rộng P6: đánh giá hiệu quả phòng thủ nhiều lớp
+- Date: 2026-11-13
+- Context: Đồ án nhóm 4 người cần phần đánh giá định lượng. Câu hỏi nghiên cứu là *mỗi lớp phòng thủ đóng góp gì và phải trả giá gì*, không phải *có bao nhiêu cách tấn công*.
+- Options: (a) thêm kỹ thuật tấn công và công cụ tự động; (b) giữ nguyên một payload `admin' -- `, thêm các lớp phòng thủ bật/tắt được và đo trên cùng bộ test.
+- Decision: chọn (b). Các lớp: L1 bind tham số (đã có), L2 kiểm tra allow-list tên đăng nhập, L3 quyền tối thiểu của role (đo trực tiếp từ catalog PostgreSQL), L4 che chi tiết lỗi, L5 giám sát phát hiện (chỉ ghi nhận, không chặn). Ma trận đánh giá chạy cùng một bộ test qua 4 cấu hình và báo cáo: tấn công có bị chặn không, người dùng hợp lệ có bị chặn nhầm không, số cảnh báo đúng/sai của lớp giám sát, thời gian truy vấn đo được.
+- Không thay đổi: chỉ một adapter nối chuỗi; không UNION/trích xuất dữ liệu, không công cụ quét tự động, không WAF bên thứ ba; mọi ranh giới cục bộ và guard giữ nguyên.
+- Consequences: thêm fixture `o'connor` (người dùng hợp lệ có dấu nháy) để đo chặn nhầm; dữ liệu lên `fixtures-v2`.
+- Affected: `docs/00-SCOPE.md`, `docs/03-DATA-MODEL.md`, `docs/04-API-CONTRACT.md`, `docs/07-TEST-STRATEGY.md`, `BACKLOG.md`.

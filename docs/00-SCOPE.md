@@ -48,3 +48,9 @@ P0–P2 establish security boundaries, database and working API; P3 builds web a
 - Target: developer laptop running Docker Desktop and VS Code (Windows/macOS/Linux), current local ports 5173, 8000, and optional localhost DB port 5433.
 - One database means same database and baseline dataset, **not** shared administrator privileges among adapters.
 - Presentation material supplied by the team requires SQLi vulnerable login, prepared statements, and repeat of identical inputs. Details beyond that are product-design decisions, not claims taken from course files.
+
+## Bổ sung phạm vi P6 (ADR-017)
+Nghiên cứu và đánh giá hiệu quả phòng thủ nhiều lớp trước SQL Injection trên kịch bản đăng nhập SecureDesk:
+- Lớp phòng thủ bật/tắt được: L1 bind tham số, L2 allow-list tên đăng nhập, L4 che chi tiết lỗi, L5 giám sát phát hiện (không chặn). L3 quyền tối thiểu được đo trực tiếp từ PostgreSQL, không bật/tắt.
+- Ma trận đánh giá trên cùng bộ test và cùng fixture; chỉ số: tấn công bị chặn, chặn nhầm người dùng hợp lệ, cảnh báo đúng/sai, thời gian đo.
+- Vẫn ngoài phạm vi: thêm kỹ thuật tấn công, công cụ quét tự động, WAF bên thứ ba, triển khai public.

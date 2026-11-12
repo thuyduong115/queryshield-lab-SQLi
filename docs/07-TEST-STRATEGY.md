@@ -62,3 +62,15 @@ For T05/T06, the vulnerable version may return a sanitized 4xx/5xx error dependi
 
 ## Definition of tested
 A file or feature is not "tested" merely because code looks right. Only report commands actually executed, pass/fail counts, and environment/dependency limitations. Keep evidence in `harness/STATUS.md`.
+
+## P6 — Ma trận đánh giá phòng thủ (ADR-017)
+| ID | Input | Vai trò trong đánh giá |
+|---|---|---|
+| T01 | `student01` / đúng | Người dùng hợp lệ |
+| T02 | `student01` / sai | Từ chối đúng |
+| T03 | `admin' -- ` / sai | Tấn công |
+| T04 | `ghost_user` / bất kỳ | Từ chối đúng |
+| T11 | `o'connor` / đúng | Người dùng hợp lệ có dấu nháy (đo chặn nhầm) |
+
+Cấu hình: C0 nối chuỗi; C1 nối chuỗi + L2; C2 bind tham số; C3 bind tham số + L2. L5 quan sát ở mọi cấu hình.
+Kỳ vọng được ghi trước trong mã (`modules/evaluation/matrix.py`) và so với kết quả đo; không suy ra kỳ vọng từ kết quả.

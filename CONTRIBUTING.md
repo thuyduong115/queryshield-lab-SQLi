@@ -2,7 +2,7 @@
 
 ## Phạm vi thay đổi
 
-- Triển khai lần lượt theo các phase đã thống nhất trong tài liệu nội bộ.
+- Triển khai lần lượt theo các phase và task trong `BACKLOG.md`; cập nhật trạng thái task trong cùng commit.
 - Không gộp tính năng của phase sau vào phase hiện tại khi gate chưa đạt.
 - Mỗi phase phải cập nhật test, tài liệu vận hành và bằng chứng kiểm tra liên quan.
 
@@ -27,7 +27,9 @@ test(p2): bổ sung kiểm tra hợp đồng REST
 Chạy từ WSL có Docker:
 
 ```bash
-bash scripts/verify-p0.sh
+bash scripts/test-api.sh
+bash scripts/test-web.sh
+bash scripts/test-e2e.sh   # khi đổi giao diện hoặc API, cần stack đang chạy
 ```
 
 Hoặc chạy riêng từng ứng dụng theo các lệnh trong `README.md`. Chỉ ghi kết quả `PASS` khi lệnh đã thực sự chạy thành công.
