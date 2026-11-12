@@ -3,8 +3,17 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from queryshield_api.modules.defenses.layers import Layers
+
 Mode = Literal["vulnerable", "secure"]
-ResultCode = Literal["AUTHENTICATED", "DENIED", "QUERY_ERROR", "LAB_DISABLED", "VALIDATION_ERROR"]
+ResultCode = Literal[
+    "AUTHENTICATED",
+    "DENIED",
+    "QUERY_ERROR",
+    "LAB_DISABLED",
+    "VALIDATION_ERROR",
+    "REJECTED_BY_VALIDATION",
+]
 
 
 class LoginRequest(BaseModel):
@@ -13,6 +22,7 @@ class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=128)
     password: str = Field(min_length=1, max_length=128)
     test_case_id: str | None = Field(default=None, max_length=16)
+    layers: Layers = Field(default_factory=Layers)
 
     @field_validator("username", "password")
     @classmethod
@@ -77,6 +87,8 @@ class LoginRunResponse(BaseModel):
     authentication: Authentication
     inspector: InspectorOut
     query_error: QueryError | None
+    layers: list[str]
+    alerts: list[str]
     duration_ms: int
     dataset_version: str
     created_at: datetime
@@ -110,6 +122,7 @@ class RunSummary(BaseModel):
     sqlstate: str | None
     expected_outcome: str | None
     passed: bool | None
+    layers: list[str]
     duration_ms: int
     dataset_version: str
     created_at: datetime

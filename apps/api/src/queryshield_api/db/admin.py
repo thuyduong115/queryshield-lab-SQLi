@@ -109,7 +109,9 @@ def apply_schema(conn: psycopg.Connection, config: AdminConfig) -> None:
 
 def seed(conn: psycopg.Connection) -> None:
     with conn.transaction():
-        conn.execute("TRUNCATE lab.runs, lab.test_cases, demo.tickets, demo.users")
+        conn.execute(
+            "TRUNCATE lab.security_events, lab.runs, lab.test_cases, demo.tickets, demo.users"
+        )
         conn.execute("DELETE FROM lab.dataset")
         conn.execute("DELETE FROM lab.scenarios")
         conn.execute(
@@ -158,7 +160,7 @@ def bootstrap(config: AdminConfig, *, force_seed: bool = False) -> str:
         ensure_roles(conn, config)
         apply_schema(conn, config)
         seeded = conn.execute("SELECT version FROM lab.dataset").fetchone()
-        if force_seed or not seeded:
+        if force_seed or not seeded or seeded[0] != schema.DATASET_VERSION:
             seed(conn)
             return "seeded"
     return "already-seeded"

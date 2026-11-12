@@ -8,6 +8,7 @@ from fastapi.responses import Response
 from queryshield_api.config import get_settings
 from queryshield_api.core.errors import LabError, install_error_handlers
 from queryshield_api.db.connection import app_connection
+from queryshield_api.modules.evaluation.router import router as evaluation_router
 from queryshield_api.modules.experiments.repository import current_dataset_version
 from queryshield_api.modules.laboratory.router import router as labs_router
 from queryshield_api.modules.securedesk.router import router as securedesk_router
@@ -64,3 +65,4 @@ def health() -> dict[str, str | bool | None]:
 
 app.include_router(labs_router)
 app.include_router(securedesk_router)
+app.include_router(evaluation_router)

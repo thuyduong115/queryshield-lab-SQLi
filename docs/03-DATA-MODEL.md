@@ -98,3 +98,9 @@ Unsafe adapter constructs semantically equivalent query but with interpolated va
 - `demo.users` also has `display_name`, `department`; `demo.tickets` has `priority`, `visibility` (`owner`/`internal`) for the simulated dashboard. `lab.dataset` stores the fixture version (`fixtures-v1`).
 - Roles: `qs_lab_query` (= `lab_readonly`: SELECT `demo.users`, `default_transaction_read_only=on`, `statement_timeout=2s`), `qs_lab_app` (= `lab_writer`: SELECT/INSERT `lab.runs`, SELECT metadata, column-level SELECT on `demo.users` without `password_hash`, SELECT `demo.tickets`). The Compose superuser is used only by the `lab-admin` CLI service.
 - `lab.test_cases.expected_*` store outcome codes (not booleans) so T05 can record the documented vulnerable `QUERY_ERROR` (SQLSTATE 42601).
+
+## P6 additions (`fixtures-v2`)
+- Fixture user `o'connor` / `OConnorDemo123!` (staff): a legitimate name containing an apostrophe, used to measure false rejections.
+- `lab.runs.layers TEXT[]`: active defense layers for the run. `result_code` adds `REJECTED_BY_VALIDATION`.
+- `lab.security_events (id, run_id, rule_id, created_at)`: L5 detections. Stores rule IDs only, never the submitted input. `qs_lab_app` has SELECT/INSERT; `qs_lab_query` has no access.
+- Bootstrap reseeds automatically when the stored dataset version differs from the code version.

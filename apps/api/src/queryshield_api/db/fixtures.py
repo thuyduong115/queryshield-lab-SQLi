@@ -31,6 +31,8 @@ USERS: tuple[FixtureUser, ...] = (
     FixtureUser(1, "admin", "AdminDemo123!", "admin", "Quản trị hệ thống", "Phòng CNTT"),
     FixtureUser(2, "student01", "StudentDemo123!", "student", "Sinh viên 01", "Khoa CNTT"),
     FixtureUser(3, "staff01", "StaffDemo123!", "staff", "Nhân viên 01", "Phòng Đào tạo"),
+    # Legitimate account whose name contains an apostrophe: measures false rejections.
+    FixtureUser(4, "o'connor", "OConnorDemo123!", "staff", "Nhân viên O'Connor", "Phòng Hỗ trợ"),
 )
 
 TICKETS: tuple[FixtureTicket, ...] = (

@@ -30,12 +30,14 @@ class RunRecord:
     sqlstate: str | None = None
     expected_result: str | None = None
     passed: bool | None = None
+    layers: tuple[str, ...] = ()
+    alerts: tuple[str, ...] = ()
 
 
 RUN_COLUMNS = (
     "id::text AS run_id, scenario_id, mode, test_case_id, suite_id::text AS suite_id, "
     "result_code AS outcome, authenticated, simulated_user, simulated_role, rows_returned, "
-    "sqlstate, expected_result AS expected_outcome, passed, duration_ms, dataset_version, "
+    "sqlstate, expected_result AS expected_outcome, passed, layers, duration_ms, dataset_version, "
     "created_at"
 )
 
@@ -52,8 +54,8 @@ def insert_run(settings: Settings, record: RunRecord) -> tuple[str, datetime, st
         row = conn.execute(
             "INSERT INTO lab.runs (id, scenario_id, mode, test_case_id, suite_id, authenticated, "
             "simulated_user, simulated_role, rows_returned, result_code, sqlstate, "
-            "expected_result, passed, duration_ms, dataset_version, request_id) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+            "expected_result, passed, duration_ms, dataset_version, request_id, layers) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
             "RETURNING created_at",
             (
                 run_id,
@@ -72,8 +74,15 @@ def insert_run(settings: Settings, record: RunRecord) -> tuple[str, datetime, st
                 record.duration_ms,
                 version,
                 record.request_id,
+                list(record.layers),
             ),
         ).fetchone()
+        if record.alerts:
+            with conn.cursor() as cur:
+                cur.executemany(
+                    "INSERT INTO lab.security_events (run_id, rule_id) VALUES (%s, %s)",
+                    [(run_id, rule) for rule in record.alerts],
+                )
     return run_id, row["created_at"], version
 
 

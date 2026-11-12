@@ -9,7 +9,9 @@ from typing import Literal
 
 from queryshield_api.db.fixtures import USERS
 
-Outcome = Literal["AUTHENTICATED", "DENIED", "QUERY_ERROR", "VALIDATION_ERROR"]
+Outcome = Literal[
+    "AUTHENTICATED", "DENIED", "QUERY_ERROR", "VALIDATION_ERROR", "REJECTED_BY_VALIDATION"
+]
 
 _PASSWORDS = {user.username: user.demo_password for user in USERS}
 
@@ -126,6 +128,18 @@ CATALOG: tuple[LabTestCase, ...] = (
         "wrong-password (sai)",
         "VALIDATION_ERROR",
         "VALIDATION_ERROR",
+        False,
+    ),
+    LabTestCase(
+        "T11",
+        "Người dùng hợp lệ có dấu nháy",
+        "Đo chặn nhầm: tên thật chứa dấu nháy",
+        "o'connor",
+        _PASSWORDS["o'connor"],
+        "o'connor",
+        "mật khẩu đúng của o'connor",
+        "QUERY_ERROR",
+        "AUTHENTICATED",
         False,
     ),
 )

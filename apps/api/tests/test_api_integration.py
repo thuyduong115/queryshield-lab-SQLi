@@ -22,7 +22,7 @@ def client(api_env) -> TestClient:
 def test_health_reports_database_and_dataset(client) -> None:
     body = client.get("/api/v1/health").json()
     assert body["database"] == "ok"
-    assert body["datasetVersion"] == "fixtures-v1"
+    assert body["datasetVersion"] == "fixtures-v2"
     assert body["unsafeLabEnabled"] is True
 
 
@@ -98,7 +98,7 @@ def test_unknown_test_case_id_rejected(client) -> None:
 
 def test_suite_runs_all_cases_and_passes(client) -> None:
     body = client.post("/api/v1/labs/login-bypass/tests/run").json()
-    assert body["total"] == 16
+    assert body["total"] == 18
     assert body["skipped"] == 0
     failed = [
         (r["test_case_id"], r["mode"], r["actual_outcome"])
@@ -110,7 +110,7 @@ def test_suite_runs_all_cases_and_passes(client) -> None:
     assert t03["vulnerable"]["actual_authenticated"] is True
     assert t03["secure"]["actual_authenticated"] is False
 
-    recent = client.get("/api/v1/labs/login-bypass/results?limit=16").json()["runs"]
+    recent = client.get("/api/v1/labs/login-bypass/results?limit=18").json()["runs"]
     assert {r["suite_id"] for r in recent} == {body["suite_id"]}
 
 

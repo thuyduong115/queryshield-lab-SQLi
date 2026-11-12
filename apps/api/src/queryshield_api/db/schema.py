@@ -1,6 +1,6 @@
 """Idempotent schema DDL for the lab database. Executed only by the local admin CLI."""
 
-DATASET_VERSION = "fixtures-v1"
+DATASET_VERSION = "fixtures-v2"
 
 QUERY_ROLE = "qs_lab_query"
 APP_ROLE = "qs_lab_app"
@@ -63,9 +63,7 @@ CREATE TABLE IF NOT EXISTS lab.runs (
     simulated_user        TEXT NULL,
     simulated_role        TEXT NULL,
     rows_returned         INT NULL,
-    result_code           TEXT NOT NULL CHECK (result_code IN (
-                              'AUTHENTICATED', 'DENIED', 'QUERY_ERROR',
-                              'LAB_DISABLED', 'VALIDATION_ERROR')),
+    result_code           TEXT NOT NULL,
     sqlstate              TEXT NULL,
     expected_result       TEXT NULL,
     passed                BOOLEAN NULL,
@@ -73,6 +71,21 @@ CREATE TABLE IF NOT EXISTS lab.runs (
     dataset_version       TEXT NOT NULL,
     request_id            TEXT NOT NULL,
     created_at            TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Additive migrations for databases created by fixtures-v1.
+ALTER TABLE lab.runs ADD COLUMN IF NOT EXISTS layers TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE lab.runs DROP CONSTRAINT IF EXISTS runs_result_code_check;
+ALTER TABLE lab.runs ADD CONSTRAINT runs_result_code_check CHECK (result_code IN (
+    'AUTHENTICATED', 'DENIED', 'QUERY_ERROR', 'LAB_DISABLED', 'VALIDATION_ERROR',
+    'REJECTED_BY_VALIDATION'));
+
+-- L5 monitoring: rule IDs only, never the submitted input.
+CREATE TABLE IF NOT EXISTS lab.security_events (
+    id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    run_id     UUID NOT NULL REFERENCES lab.runs (id) ON DELETE CASCADE,
+    rule_id    TEXT NOT NULL CHECK (rule_id IN ('QUOTE', 'COMMENT', 'SEPARATOR')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS runs_created_at_idx ON lab.runs (created_at DESC);
@@ -98,5 +111,5 @@ GRANT USAGE ON SCHEMA demo, lab TO {app_role};
 GRANT SELECT (id, username, role, display_name, department) ON demo.users TO {app_role};
 GRANT SELECT ON demo.tickets TO {app_role};
 GRANT SELECT ON lab.dataset, lab.scenarios, lab.test_cases TO {app_role};
-GRANT SELECT, INSERT ON lab.runs TO {app_role};
+GRANT SELECT, INSERT ON lab.runs, lab.security_events TO {app_role};
 """

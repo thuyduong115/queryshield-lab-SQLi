@@ -10,6 +10,7 @@ from queryshield_api.config import Settings
 from queryshield_api.core.errors import LabError, database_unavailable
 from queryshield_api.core.guards import lab_disabled_error, unsafe_allowed
 from queryshield_api.db.connection import query_connection
+from queryshield_api.modules.defenses.layers import detect, passes_allow_list
 from queryshield_api.modules.experiments import repository
 from queryshield_api.modules.experiments.catalog import BY_ID
 from queryshield_api.modules.laboratory import inspector as insp
@@ -73,6 +74,7 @@ def execute_login(
     if request.test_case_id is not None and request.test_case_id not in BY_ID:
         raise LabError(404, "TEST_CASE_NOT_FOUND", "Không có test case với mã này.")
 
+    # The guard comes first: a disabled lab never reaches any other layer.
     if request.mode == "vulnerable":
         if not unsafe_allowed(settings):
             raise lab_disabled_error(record_lab_disabled(settings, request, ctx))
@@ -85,31 +87,37 @@ def execute_login(
         adapter = SecureLoginAdapter()
         inspector = insp.secure_inspector(request.username, SECURE_LOGIN_SQL)
 
+    layers = request.layers.active(request.mode)
+    alerts = detect(request.username)  # L5: observe only, never blocks
     query_error = None
+    outcome = LoginOutcome(False, None, None, 0)
+
     start = time.perf_counter()
-    with query_connection(settings) as conn:
-        try:
-            outcome = adapter.authenticate(conn, request.username, request.password)
-            result_code = "AUTHENTICATED" if outcome.authenticated else "DENIED"
-        except psycopg.OperationalError:
-            raise database_unavailable() from None
-        except psycopg.Error as exc:
-            # Only the vulnerable adapter can turn input into a parse error. Report the
-            # SQLSTATE class, never the server message (which could echo input).
-            if request.mode != "vulnerable":
-                raise
-            outcome = LoginOutcome(False, None, None, 0)
-            result_code = "QUERY_ERROR"
-            query_error = {
-                "sqlstate": exc.sqlstate,
-                "category": type(exc).__name__,
-            }
+    if request.layers.input_validation and not passes_allow_list(request.username):
+        # L2: rejected before any SQL is built or sent.
+        result_code = "REJECTED_BY_VALIDATION"
+        inspector.observations = ["REJECTED_BEFORE_DATABASE"]
+    else:
+        with query_connection(settings) as conn:
+            try:
+                outcome = adapter.authenticate(conn, request.username, request.password)
+                result_code = "AUTHENTICATED" if outcome.authenticated else "DENIED"
+            except psycopg.OperationalError:
+                raise database_unavailable() from None
+            except psycopg.Error as exc:
+                # Only the vulnerable adapter can turn input into a parse error. Report the
+                # SQLSTATE class, never the server message (which could echo input).
+                if request.mode != "vulnerable":
+                    raise
+                result_code = "QUERY_ERROR"
+                query_error = {"sqlstate": exc.sqlstate, "category": type(exc).__name__}
     duration_ms = _ms_since(start)
 
     passed = None
     if ctx.expected_result is not None:
         passed = ctx.expected_result == result_code
 
+    executed = result_code in ("AUTHENTICATED", "DENIED")
     run_id, created_at, version = repository.insert_run(
         settings,
         repository.RunRecord(
@@ -123,12 +131,18 @@ def execute_login(
             suite_id=ctx.suite_id,
             simulated_user=outcome.username,
             simulated_role=outcome.role,
-            rows_returned=outcome.rows_returned if result_code != "QUERY_ERROR" else None,
+            rows_returned=outcome.rows_returned if executed else None,
+            # Kept internally even when L4 masks it from the response.
             sqlstate=query_error["sqlstate"] if query_error else None,
             expected_result=ctx.expected_result,
             passed=passed,
+            layers=tuple(layers),
+            alerts=tuple(alerts),
         ),
     )
+
+    if query_error and request.layers.error_masking:
+        query_error = {"sqlstate": None, "category": "masked"}
 
     return LoginRunResponse(
         run_id=run_id,
@@ -143,10 +157,12 @@ def execute_login(
                 if outcome.authenticated
                 else None
             ),
-            "rows_returned": outcome.rows_returned if result_code != "QUERY_ERROR" else None,
+            "rows_returned": outcome.rows_returned if executed else None,
         },
         inspector=asdict(inspector),
         query_error=query_error,
+        layers=layers,
+        alerts=alerts,
         duration_ms=duration_ms,
         dataset_version=version,
         created_at=created_at,

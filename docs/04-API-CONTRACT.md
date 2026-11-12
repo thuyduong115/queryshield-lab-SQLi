@@ -87,3 +87,10 @@ If a breaking change is essential, update this contract, OpenAPI implementation,
 - 422 bodies list only `{field, issue}`; submitted values are never echoed.
 - Every response carries `X-Request-ID` and `Cache-Control: no-store`; no response sets cookies.
 - Suite results: `{test_case_id, mode, expected_outcome, actual_outcome, expected_authenticated, actual_authenticated, status: passed|failed|skipped, passed, run_id, duration_ms}`.
+
+## P6 — Defense layers and evaluation (ADR-017)
+- `POST /labs/login-bypass/execute` accepts optional `layers: {input_validation: bool, error_masking: bool}` (both default `false`). Response adds `layers` (active layer names, e.g. `["binding", "validation", "monitoring"]`) and `alerts` (L5 rule IDs `QUOTE`, `COMMENT`, `SEPARATOR`; observe-only).
+- New outcome `REJECTED_BY_VALIDATION`: L2 rejected the username before any SQL was built; `inspector.observations = ["REJECTED_BEFORE_DATABASE"]`.
+- With `error_masking=true`, a `QUERY_ERROR` response returns `query_error = {sqlstate: null, category: "masked"}`; the SQLSTATE is still stored in `lab.runs` for the operator.
+- `GET /labs/login-bypass/defenses`: allow-list pattern, detection rules, and `least_privilege` measured live from the PostgreSQL catalog (`has_table_privilege`, `pg_roles`, `pg_db_role_setting`) for `qs_lab_query`.
+- `POST /labs/login-bypass/evaluation/run`: runs configurations C0–C3 over T01, T11, T02, T04, T03. Returns per-cell `{configuration_id, test_case_id, role, expected_outcome, actual_outcome, status: passed|failed|skipped, alerts, run_id, duration_ms}` and per-configuration metrics (`attack_blocked`, `legitimate_accepted`, `false_rejections`, `wrong_credentials_denied`, `alerts_on_attack`, `alerts_on_legitimate`, `mean_duration_ms`). C0/C1 are `skipped` when the unsafe guard is off.

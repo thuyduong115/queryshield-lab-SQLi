@@ -34,12 +34,12 @@ Trạng thái: To Do / In Progress / Done. Cập nhật file này trong cùng co
 | ID | Task | Vai | Trạng thái |
 |---|---|---|---|
 | P6-1 | Tài liệu: ADR-017, phạm vi, ma trận test, dàn ý báo cáo, backlog | TV4 | Done |
-| P6-2 | Fixture `o'connor` (người dùng hợp lệ có dấu nháy), `fixtures-v2` | TV1 | To Do |
-| P6-3 | L2 allow-list tên đăng nhập, bật/tắt theo request | TV2 | To Do |
-| P6-4 | L4 che chi tiết lỗi SQL | TV2 | To Do |
-| P6-5 | L5 giám sát phát hiện: bảng sự kiện, không lưu input thô | TV2 | To Do |
-| P6-6 | L3 đo quyền thật của role từ catalog PostgreSQL | TV1 | To Do |
-| P6-7 | Ma trận đánh giá C0–C3, API chạy và lưu kết quả | TV4 | To Do |
+| P6-2 | Fixture `o'connor` (người dùng hợp lệ có dấu nháy), `fixtures-v2` | TV1 | Done |
+| P6-3 | L2 allow-list tên đăng nhập, bật/tắt theo request | TV2 | Done |
+| P6-4 | L4 che chi tiết lỗi SQL | TV2 | Done |
+| P6-5 | L5 giám sát phát hiện: bảng sự kiện, không lưu input thô | TV2 | Done |
+| P6-6 | L3 đo quyền thật của role từ catalog PostgreSQL | TV1 | Done |
+| P6-7 | Ma trận đánh giá C0–C3, API chạy và lưu kết quả | TV4 | Done |
 | P6-8 | Trang “Đánh giá phòng thủ” trên web | TV3 | To Do |
 | P6-9 | Xuất kết quả đánh giá (JSON/Markdown) vào `reports/evaluation/` | TV4 | To Do |
 | P6-10 | Test pytest + E2E cho P6 | TV3 | To Do |
