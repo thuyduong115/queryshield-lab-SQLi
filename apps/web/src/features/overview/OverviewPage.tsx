@@ -36,6 +36,14 @@ export function OverviewPage() {
             dòng.
           </p>
         </article>
+        <article className="part-card part-card--3">
+          <h2>Phần 3 · Đánh giá phòng thủ nhiều lớp</h2>
+          <p>
+            Bốn cấu hình, năm ca kiểm thử, hai mươi lần chạy thật: lớp nào chặn
+            được tấn công và lớp nào chặn nhầm người dùng hợp lệ.
+          </p>
+          <Link to="/lab/defenses">Mở trang đánh giá</Link>
+        </article>
       </div>
 
       <section className="facts" aria-labelledby="facts-title">

@@ -1259,7 +1259,7 @@ tbody tr:last-child > * {
 
 .overview__parts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
@@ -1276,6 +1276,10 @@ tbody tr:last-child > * {
 
 .part-card--2 {
   border-color: var(--sealed);
+}
+
+.part-card--3 {
+  border-color: var(--ink);
 }
 
 .facts dl {
