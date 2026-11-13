@@ -34,6 +34,27 @@ Sau khi các health check hoàn tất (cổng mặc định, đổi được tro
 
 Mọi cổng chỉ bind vào loopback. Nếu `.env` để mặc định (`LAB_ENABLE_UNSAFE=false`), chế độ dễ bị tấn công trả về `403 LAB_DISABLED`; chế độ tham số hóa vẫn chạy.
 
+## Đánh giá phòng thủ nhiều lớp
+
+Trang **Đánh giá phòng thủ** (`/lab/defenses`) chạy cùng năm ca kiểm thử qua bốn cấu hình:
+
+| Cấu hình | Lớp |
+|---|---|
+| C0 | Nối chuỗi, chỉ có giám sát |
+| C1 | Nối chuỗi + allow-list tên đăng nhập (L2) |
+| C2 | Bind tham số (L1) |
+| C3 | Bind tham số (L1) + allow-list (L2) |
+
+Mỗi cấu hình được đo trên: tấn công có bị chặn không, người dùng hợp lệ (gồm `o'connor` có dấu nháy) có bị chặn nhầm không, số cảnh báo của lớp giám sát (L5). Quyền của role adapter (L3) được đọc trực tiếp từ catalog PostgreSQL. Kỳ vọng được ghi sẵn trong `apps/api/src/queryshield_api/modules/evaluation/matrix.py`.
+
+Lưu kết quả thật vào `reports/evaluation/` (JSON + Markdown, có run ID):
+
+```powershell
+python scripts/export_evaluation.py --port 8000
+```
+
+Cột thời gian trung bình gộp cả chi phí băm bcrypt của các ca thật sự chạm cơ sở dữ liệu; ca bị allow-list chặn không truy vấn nên nhanh hơn. Không dùng cột này như chi phí hiệu năng thuần của từng lớp.
+
 ## Reset dữ liệu (chỉ CLI, không có endpoint HTTP)
 
 ```powershell

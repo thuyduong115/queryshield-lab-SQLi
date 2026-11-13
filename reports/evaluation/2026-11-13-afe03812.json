@@ -1,0 +1,368 @@
+{
+  "generated_at": "2026-11-13T02:38:20.037060+00:00",
+  "health": {
+    "status": "ok",
+    "environment": "local",
+    "unsafeLabEnabled": true,
+    "database": "ok",
+    "datasetVersion": "fixtures-v2"
+  },
+  "result": {
+    "suite_id": "afe03812-183c-4547-a447-cb4ed9c207eb",
+    "unsafe_lab_enabled": true,
+    "cases": [
+      {
+        "id": "T01",
+        "role": "legitimate",
+        "input_label": "student01",
+        "password_label": "mật khẩu đúng của student01"
+      },
+      {
+        "id": "T11",
+        "role": "legitimate",
+        "input_label": "o'connor",
+        "password_label": "mật khẩu đúng của o'connor"
+      },
+      {
+        "id": "T02",
+        "role": "wrong_credentials",
+        "input_label": "student01",
+        "password_label": "wrong-password (sai)"
+      },
+      {
+        "id": "T04",
+        "role": "wrong_credentials",
+        "input_label": "ghost_user",
+        "password_label": "AnyPassword1!"
+      },
+      {
+        "id": "T03",
+        "role": "attack",
+        "input_label": "admin' -- ",
+        "password_label": "wrong-password (sai)"
+      }
+    ],
+    "configurations": [
+      {
+        "id": "C0",
+        "title": "Nối chuỗi, không lớp bổ sung",
+        "mode": "vulnerable",
+        "layers": [
+          "monitoring"
+        ],
+        "skipped": false,
+        "attack_blocked": false,
+        "legitimate_accepted": 1,
+        "legitimate_total": 2,
+        "false_rejections": 1,
+        "wrong_credentials_denied": 2,
+        "wrong_credentials_total": 2,
+        "alerts_on_attack": 1,
+        "alerts_on_legitimate": 1,
+        "mean_duration_ms": 24.0
+      },
+      {
+        "id": "C1",
+        "title": "Nối chuỗi + allow-list (L2)",
+        "mode": "vulnerable",
+        "layers": [
+          "validation",
+          "monitoring"
+        ],
+        "skipped": false,
+        "attack_blocked": true,
+        "legitimate_accepted": 1,
+        "legitimate_total": 2,
+        "false_rejections": 1,
+        "wrong_credentials_denied": 2,
+        "wrong_credentials_total": 2,
+        "alerts_on_attack": 1,
+        "alerts_on_legitimate": 1,
+        "mean_duration_ms": 15.0
+      },
+      {
+        "id": "C2",
+        "title": "Bind tham số (L1)",
+        "mode": "secure",
+        "layers": [
+          "binding",
+          "monitoring"
+        ],
+        "skipped": false,
+        "attack_blocked": true,
+        "legitimate_accepted": 2,
+        "legitimate_total": 2,
+        "false_rejections": 0,
+        "wrong_credentials_denied": 2,
+        "wrong_credentials_total": 2,
+        "alerts_on_attack": 1,
+        "alerts_on_legitimate": 1,
+        "mean_duration_ms": 33.2
+      },
+      {
+        "id": "C3",
+        "title": "Bind tham số (L1) + allow-list (L2)",
+        "mode": "secure",
+        "layers": [
+          "binding",
+          "validation",
+          "monitoring"
+        ],
+        "skipped": false,
+        "attack_blocked": true,
+        "legitimate_accepted": 1,
+        "legitimate_total": 2,
+        "false_rejections": 1,
+        "wrong_credentials_denied": 2,
+        "wrong_credentials_total": 2,
+        "alerts_on_attack": 1,
+        "alerts_on_legitimate": 1,
+        "mean_duration_ms": 16.8
+      }
+    ],
+    "cells": [
+      {
+        "configuration_id": "C0",
+        "test_case_id": "T01",
+        "role": "legitimate",
+        "expected_outcome": "AUTHENTICATED",
+        "actual_outcome": "AUTHENTICATED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "1ab79f08-f8f8-4c19-9f41-59b4b655dad3",
+        "duration_ms": 35
+      },
+      {
+        "configuration_id": "C0",
+        "test_case_id": "T11",
+        "role": "legitimate",
+        "expected_outcome": "QUERY_ERROR",
+        "actual_outcome": "QUERY_ERROR",
+        "status": "passed",
+        "alerts": [
+          "QUOTE"
+        ],
+        "run_id": "22cd0a54-9986-4bb6-8932-214748b93455",
+        "duration_ms": 10
+      },
+      {
+        "configuration_id": "C0",
+        "test_case_id": "T02",
+        "role": "wrong_credentials",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "36247966-71f9-40d9-8597-427be7f46700",
+        "duration_ms": 46
+      },
+      {
+        "configuration_id": "C0",
+        "test_case_id": "T04",
+        "role": "wrong_credentials",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "918293eb-de4f-4354-a64b-d0cc3ef95456",
+        "duration_ms": 16
+      },
+      {
+        "configuration_id": "C0",
+        "test_case_id": "T03",
+        "role": "attack",
+        "expected_outcome": "AUTHENTICATED",
+        "actual_outcome": "AUTHENTICATED",
+        "status": "passed",
+        "alerts": [
+          "QUOTE",
+          "COMMENT"
+        ],
+        "run_id": "eceb8099-039a-4bc1-b185-24a2dfbf5899",
+        "duration_ms": 13
+      },
+      {
+        "configuration_id": "C1",
+        "test_case_id": "T01",
+        "role": "legitimate",
+        "expected_outcome": "AUTHENTICATED",
+        "actual_outcome": "AUTHENTICATED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "c56d2812-959a-491d-8130-a2815493e803",
+        "duration_ms": 27
+      },
+      {
+        "configuration_id": "C1",
+        "test_case_id": "T11",
+        "role": "legitimate",
+        "expected_outcome": "REJECTED_BY_VALIDATION",
+        "actual_outcome": "REJECTED_BY_VALIDATION",
+        "status": "passed",
+        "alerts": [
+          "QUOTE"
+        ],
+        "run_id": "3d685514-e68f-441c-8df5-015be74f39b6",
+        "duration_ms": 0
+      },
+      {
+        "configuration_id": "C1",
+        "test_case_id": "T02",
+        "role": "wrong_credentials",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "8801a15f-b4ce-4435-a2da-067bf264e6d5",
+        "duration_ms": 28
+      },
+      {
+        "configuration_id": "C1",
+        "test_case_id": "T04",
+        "role": "wrong_credentials",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "30c2cae5-195f-482b-923f-8dacbcf02be5",
+        "duration_ms": 20
+      },
+      {
+        "configuration_id": "C1",
+        "test_case_id": "T03",
+        "role": "attack",
+        "expected_outcome": "REJECTED_BY_VALIDATION",
+        "actual_outcome": "REJECTED_BY_VALIDATION",
+        "status": "passed",
+        "alerts": [
+          "QUOTE",
+          "COMMENT"
+        ],
+        "run_id": "b5e63496-a47e-4316-9f49-b0567e343408",
+        "duration_ms": 0
+      },
+      {
+        "configuration_id": "C2",
+        "test_case_id": "T01",
+        "role": "legitimate",
+        "expected_outcome": "AUTHENTICATED",
+        "actual_outcome": "AUTHENTICATED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "4c06bb28-842b-4549-b5b3-e119a7d80410",
+        "duration_ms": 29
+      },
+      {
+        "configuration_id": "C2",
+        "test_case_id": "T11",
+        "role": "legitimate",
+        "expected_outcome": "AUTHENTICATED",
+        "actual_outcome": "AUTHENTICATED",
+        "status": "passed",
+        "alerts": [
+          "QUOTE"
+        ],
+        "run_id": "3532c0f0-3b3c-4e22-b8e6-ad7fb3f93e64",
+        "duration_ms": 28
+      },
+      {
+        "configuration_id": "C2",
+        "test_case_id": "T02",
+        "role": "wrong_credentials",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "dc822308-34f8-4244-8caf-7279dd56ef70",
+        "duration_ms": 71
+      },
+      {
+        "configuration_id": "C2",
+        "test_case_id": "T04",
+        "role": "wrong_credentials",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "4b9d674b-896e-4c63-9c55-a835164fdeac",
+        "duration_ms": 22
+      },
+      {
+        "configuration_id": "C2",
+        "test_case_id": "T03",
+        "role": "attack",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [
+          "QUOTE",
+          "COMMENT"
+        ],
+        "run_id": "1722b241-7b94-4566-99bf-cd8df212ee30",
+        "duration_ms": 16
+      },
+      {
+        "configuration_id": "C3",
+        "test_case_id": "T01",
+        "role": "legitimate",
+        "expected_outcome": "AUTHENTICATED",
+        "actual_outcome": "AUTHENTICATED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "5224d0ff-21f0-4025-8375-1830e8fd729f",
+        "duration_ms": 33
+      },
+      {
+        "configuration_id": "C3",
+        "test_case_id": "T11",
+        "role": "legitimate",
+        "expected_outcome": "REJECTED_BY_VALIDATION",
+        "actual_outcome": "REJECTED_BY_VALIDATION",
+        "status": "passed",
+        "alerts": [
+          "QUOTE"
+        ],
+        "run_id": "df91a287-75c6-4fec-8435-5d873180e4ff",
+        "duration_ms": 0
+      },
+      {
+        "configuration_id": "C3",
+        "test_case_id": "T02",
+        "role": "wrong_credentials",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "9057e3ee-36ce-4e7d-be59-4f18b6a81b55",
+        "duration_ms": 36
+      },
+      {
+        "configuration_id": "C3",
+        "test_case_id": "T04",
+        "role": "wrong_credentials",
+        "expected_outcome": "DENIED",
+        "actual_outcome": "DENIED",
+        "status": "passed",
+        "alerts": [],
+        "run_id": "11b5539c-e273-40d8-9f4d-6b5fb980f9b5",
+        "duration_ms": 15
+      },
+      {
+        "configuration_id": "C3",
+        "test_case_id": "T03",
+        "role": "attack",
+        "expected_outcome": "REJECTED_BY_VALIDATION",
+        "actual_outcome": "REJECTED_BY_VALIDATION",
+        "status": "passed",
+        "alerts": [
+          "QUOTE",
+          "COMMENT"
+        ],
+        "run_id": "fe3a60a6-86c7-467d-9251-3f91c54f54f7",
+        "duration_ms": 0
+      }
+    ],
+    "expectations_met": 20,
+    "expectations_total": 20
+  }
+}
