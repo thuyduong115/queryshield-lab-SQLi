@@ -48,7 +48,7 @@ Trạng thái: To Do / In Progress / Done. Cập nhật file này trong cùng co
 
 | ID | Task | Vai | Trạng thái |
 |---|---|---|---|
-| P5-1 | Sơ đồ kiến trúc, tuần tự, phân quyền (`docs/diagrams/`) | TV1 | To Do |
+| P5-1 | Sơ đồ kiến trúc, tuần tự, phân quyền (`docs/diagrams/`) | TV1 | Done |
 | P5-2 | Báo cáo chương 1–3 theo `docs/report/outline.md` | TV4 | To Do |
 | P5-3 | Báo cáo chương 4–5 với số liệu thật từ `reports/evaluation/` | TV4 | To Do |
 | P5-4 | Slide và kịch bản quay demo | TV3 | To Do |
