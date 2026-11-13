@@ -45,6 +45,12 @@ export const PRESETS: Preset[] = [
     password: 'Random-Pass-1',
   },
   {
+    id: 'T11',
+    label: "T11 · Người dùng hợp lệ o'connor",
+    username: "o'connor",
+    password: 'OConnorDemo123!',
+  },
+  {
     id: 'T06',
     label: 'T06 · Tên Unicode',
     username: 'nguyễn.văn.an',

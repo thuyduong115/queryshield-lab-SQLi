@@ -6,6 +6,7 @@ export type Outcome =
   | 'QUERY_ERROR'
   | 'LAB_DISABLED'
   | 'VALIDATION_ERROR'
+  | 'REJECTED_BY_VALIDATION'
 
 export type Health = {
   status: 'ok' | 'degraded'
@@ -52,10 +53,17 @@ export type LoginRun = {
   }
   inspector: Inspector
   query_error: { sqlstate: string | null; category: string } | null
+  layers: string[]
+  alerts: string[]
   duration_ms: number
   dataset_version: string
   created_at: string
   simulation_notice: string
+}
+
+export type Layers = {
+  input_validation: boolean
+  error_masking: boolean
 }
 
 export type LoginInput = {
@@ -63,6 +71,7 @@ export type LoginInput = {
   username: string
   password: string
   test_case_id?: string
+  layers?: Layers
 }
 
 export type TestCaseMeta = {
@@ -145,4 +154,65 @@ export type SimulatedSession = {
   }
   tickets: Ticket[]
   notice: string
+}
+
+export type RoleReport = {
+  role: string
+  superuser: boolean
+  can_create_db: boolean
+  can_create_role: boolean
+  settings: string[]
+  tables: { table: string; granted: string[] }[]
+}
+
+export type DefenseCatalog = {
+  allow_list_pattern: string
+  detection_rules: { id: string; description: string }[]
+  least_privilege: RoleReport
+}
+
+export type CaseRole = 'legitimate' | 'wrong_credentials' | 'attack'
+
+export type EvaluationCell = {
+  configuration_id: string
+  test_case_id: string
+  role: CaseRole
+  expected_outcome: Outcome
+  actual_outcome: Outcome | null
+  status: 'passed' | 'failed' | 'skipped'
+  alerts: string[]
+  run_id: string | null
+  duration_ms: number | null
+}
+
+export type ConfigurationSummary = {
+  id: string
+  title: string
+  mode: Mode
+  layers: string[]
+  skipped: boolean
+  attack_blocked: boolean | null
+  legitimate_accepted: number
+  legitimate_total: number
+  false_rejections: number
+  wrong_credentials_denied: number
+  wrong_credentials_total: number
+  alerts_on_attack: number
+  alerts_on_legitimate: number
+  mean_duration_ms: number | null
+}
+
+export type EvaluationResult = {
+  suite_id: string
+  unsafe_lab_enabled: boolean
+  cases: {
+    id: string
+    role: CaseRole
+    input_label: string
+    password_label: string
+  }[]
+  configurations: ConfigurationSummary[]
+  cells: EvaluationCell[]
+  expectations_met: number
+  expectations_total: number
 }

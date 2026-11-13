@@ -44,11 +44,19 @@ export function LabPage() {
   const [username, setUsername] = useState<string>(DEMO.payload)
   const [password, setPassword] = useState<string>(DEMO.wrongPassword)
   const [caseId, setCaseId] = useState<string | undefined>('T03')
+  const [validation, setValidation] = useState(false)
+  const [masking, setMasking] = useState(false)
   const { state, execute } = useLoginRun()
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    void execute({ mode, username, password, test_case_id: caseId })
+    void execute({
+      mode,
+      username,
+      password,
+      test_case_id: caseId,
+      layers: { input_validation: validation, error_masking: masking },
+    })
   }
 
   return (
@@ -90,6 +98,25 @@ export function LabPage() {
               setCaseId(undefined)
             }}
           />
+          <fieldset className="layer-switches">
+            <legend>Lớp bổ sung</legend>
+            <label>
+              <input
+                type="checkbox"
+                checked={validation}
+                onChange={(event) => setValidation(event.target.checked)}
+              />
+              L2 Allow-list tên đăng nhập
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={masking}
+                onChange={(event) => setMasking(event.target.checked)}
+              />
+              L4 Che chi tiết lỗi
+            </label>
+          </fieldset>
           <button
             type="submit"
             className={`button button--primary${mode === 'vulnerable' ? ' button--breach' : ''}`}

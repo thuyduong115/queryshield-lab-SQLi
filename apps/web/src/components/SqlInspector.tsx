@@ -133,6 +133,16 @@ export function SqlLegend({ mode }: { mode: 'vulnerable' | 'secure' }) {
 
 export function SqlInspector({ inspector }: { inspector: Inspector }) {
   const secure = inspector.explanation_code === 'PARAMETER_BINDING'
+  if (inspector.observations.includes('REJECTED_BEFORE_DATABASE')) {
+    return (
+      <section className="inspector" aria-label="Trình kiểm tra truy vấn">
+        <h3>Không có câu SQL nào được gửi</h3>
+        <ul className="observations">
+          <li>{OBSERVATION_TEXT.REJECTED_BEFORE_DATABASE}</li>
+        </ul>
+      </section>
+    )
+  }
   return (
     <section
       className={`inspector inspector--${secure ? 'secure' : 'vulnerable'}`}

@@ -44,10 +44,10 @@ test('Comparison runs identical input against both adapters', async ({ page }) =
   await expect(page.getByTestId('run-secure').getByRole('status')).toContainText('Bị từ chối')
 })
 
-test('Automated suite passes T01–T08 in both modes', async ({ page }) => {
+test('Automated suite passes every catalog case in both modes', async ({ page }) => {
   await page.goto('/lab/test-results')
   await page.getByRole('button', { name: 'Chạy bộ kiểm thử' }).click()
-  await expect(page.getByText(/16\/16/)).toBeVisible()
+  await expect(page.getByText(/18\/18/)).toBeVisible()
   await expect(page.locator('.mark--fail')).toHaveCount(0)
 })
 

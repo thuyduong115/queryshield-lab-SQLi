@@ -1,4 +1,6 @@
 import type {
+  DefenseCatalog,
+  EvaluationResult,
   Health,
   LoginInput,
   LoginRun,
@@ -89,6 +91,11 @@ export const api = {
     request<{ runs: RunSummary[] }>(
       `/labs/login-bypass/results?limit=${limit}`,
     ),
+  defenses: () => request<DefenseCatalog>('/labs/login-bypass/defenses'),
+  runEvaluation: () =>
+    request<EvaluationResult>('/labs/login-bypass/evaluation/run', {
+      method: 'POST',
+    }),
   simulatedSession: (runId: string) =>
     request<SimulatedSession>(
       `/securedesk/simulated-session/${encodeURIComponent(runId)}`,

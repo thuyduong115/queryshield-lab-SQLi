@@ -1457,6 +1457,165 @@ tbody tr:last-child > * {
   color: var(--breach);
 }
 
+/* ---------- Defense evaluation ---------- */
+
+.layers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.layers > li {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper-raised);
+}
+
+.layers > li > svg {
+  flex: none;
+  margin-top: 0.1rem;
+  color: var(--sealed);
+}
+
+.layers h3 {
+  margin-bottom: var(--space-1);
+}
+
+.layers p {
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.layers > li > div {
+  min-width: 0;
+}
+
+/* Keep every column readable on phones; the wrapper scrolls horizontally instead. */
+.eval-summary {
+  min-width: 46rem;
+}
+
+.eval-matrix {
+  min-width: 40rem;
+}
+
+.eval-summary th:first-child,
+.eval-matrix th:first-child {
+  width: 13rem;
+}
+
+@media (max-width: 820px) {
+  .eval-summary th:first-child,
+  .eval-matrix th:first-child {
+    width: 9.5rem;
+  }
+}
+
+.layers > li:nth-child(3) {
+  /* L3 carries the live privilege table: give it a full row under the other layers. */
+  grid-column: 1 / -1;
+  order: 1;
+}
+
+.privileges {
+  margin-top: var(--space-3);
+  font-size: 0.92rem;
+}
+
+.privileges th,
+.privileges td {
+  padding: 0.35rem var(--space-3);
+}
+
+.layer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.layer-tag {
+  padding: 0 0.4rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  color: var(--ink-2);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.eval-summary tbody th,
+.eval-matrix tbody th {
+  font-weight: 500;
+}
+
+.eval-summary tbody th > span,
+.eval-matrix tbody th > * {
+  display: block;
+}
+
+.eval-matrix .input-chip {
+  display: inline-block;
+  margin: 0.15rem 0;
+}
+
+.alert-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--warn);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.outcome--REJECTED_BY_VALIDATION {
+  color: var(--sealed-ink);
+}
+
+.findings {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.layer-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.layer-switches legend {
+  margin-bottom: var(--space-1);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink-2);
+}
+
+.layer-switches label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.layer-switches input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--sealed);
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1100px) {

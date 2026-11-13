@@ -123,7 +123,7 @@ export const STEPS: DemoStep[] = [
     id: 'verify',
     part: 2,
     title: 'Kiểm chứng tự động',
-    goal: 'Chạy bộ test T01–T08 trên cả hai chế độ và đối chiếu kỳ vọng.',
+    goal: 'Chạy toàn bộ ca kiểm thử trên cả hai chế độ và đối chiếu kỳ vọng.',
     narration:
       'Kết quả trên không phải ảnh chụp: bộ test chạy lại mọi trường hợp trên cùng dữ liệu, lưu run ID và đối chiếu với kỳ vọng.',
     kind: 'suite',

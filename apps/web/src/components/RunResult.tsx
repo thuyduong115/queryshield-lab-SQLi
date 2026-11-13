@@ -3,7 +3,13 @@ import { Link } from 'react-router'
 
 import type { ApiError } from '../lib/api'
 import { formatTime, shortId } from '../lib/format'
-import { MODE_LABEL, OUTCOME_LABEL, ROLE_LABEL } from '../lib/labels'
+import {
+  ALERT_LABEL,
+  LAYER_LABEL,
+  MODE_LABEL,
+  OUTCOME_LABEL,
+  ROLE_LABEL,
+} from '../lib/labels'
 import type { LoginRun } from '../lib/types'
 import { SqlInspector } from './SqlInspector'
 
@@ -17,7 +23,13 @@ function verdictDetail(run: LoginRun): string {
   if (run.outcome === 'DENIED') {
     return 'PostgreSQL trả về 0 dòng, không có tài khoản nào khớp.'
   }
+  if (run.outcome === 'REJECTED_BY_VALIDATION') {
+    return 'Allow-list (L2) từ chối tên đăng nhập trước khi dựng câu SQL.'
+  }
   if (run.outcome === 'QUERY_ERROR') {
+    if (!run.query_error?.sqlstate) {
+      return 'Câu SQL lỗi. Lớp che lỗi (L4) đã ẩn mã SQLSTATE khỏi phản hồi.'
+    }
     return `PostgreSQL từ chối phân tích câu lệnh (SQLSTATE ${run.query_error?.sqlstate ?? '?'}). Input đã làm hỏng cấu trúc SQL.`
   }
   return ''
@@ -75,6 +87,18 @@ export function RunMeta({ run }: { run: LoginRun }) {
       <div>
         <dt>Thời gian truy vấn</dt>
         <dd className="mono">{run.duration_ms} ms</dd>
+      </div>
+      <div>
+        <dt>Lớp đang bật</dt>
+        <dd>{run.layers.map((l) => LAYER_LABEL[l] ?? l).join(', ')}</dd>
+      </div>
+      <div>
+        <dt>Cảnh báo L5</dt>
+        <dd>
+          {run.alerts.length
+            ? run.alerts.map((a) => ALERT_LABEL[a] ?? a).join(', ')
+            : 'không'}
+        </dd>
       </div>
       <div>
         <dt>Dữ liệu</dt>

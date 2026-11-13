@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router'
 
 import { LabShell } from './app/LabShell'
 import { ComparisonPage } from './features/comparison/ComparisonPage'
+import { DefensesPage } from './features/defenses/DefensesPage'
 import { DemoPage } from './features/demo/DemoPage'
 import { LabPage } from './features/laboratory/LabPage'
 import { OverviewPage } from './features/overview/OverviewPage'
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="lab/login-bypass" element={<LabPage />} />
           <Route path="lab/comparison" element={<ComparisonPage />} />
           <Route path="lab/test-results" element={<TestResultsPage />} />
+          <Route path="lab/defenses" element={<DefensesPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="app/login" element={<SecureDeskLogin />} />

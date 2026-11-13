@@ -40,9 +40,9 @@ Trạng thái: To Do / In Progress / Done. Cập nhật file này trong cùng co
 | P6-5 | L5 giám sát phát hiện: bảng sự kiện, không lưu input thô | TV2 | Done |
 | P6-6 | L3 đo quyền thật của role từ catalog PostgreSQL | TV1 | Done |
 | P6-7 | Ma trận đánh giá C0–C3, API chạy và lưu kết quả | TV4 | Done |
-| P6-8 | Trang “Đánh giá phòng thủ” trên web | TV3 | To Do |
+| P6-8 | Trang “Đánh giá phòng thủ” trên web | TV3 | Done |
 | P6-9 | Xuất kết quả đánh giá (JSON/Markdown) vào `reports/evaluation/` | TV4 | To Do |
-| P6-10 | Test pytest + E2E cho P6 | TV3 | To Do |
+| P6-10 | Test pytest + E2E cho P6 | TV3 | Done |
 
 ## P5 · Báo cáo và trình bày
 

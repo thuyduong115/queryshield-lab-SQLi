@@ -8,6 +8,7 @@ import {
   Presentation,
   RefreshCw,
   ShieldHalf,
+  ShieldPlus,
   Ticket,
 } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router'
@@ -20,6 +21,7 @@ const NAV = [
   { to: '/lab/login-bypass', label: 'Lab tự do', icon: FlaskConical },
   { to: '/lab/comparison', label: 'So sánh', icon: Columns2 },
   { to: '/lab/test-results', label: 'Kiểm thử', icon: ClipboardCheck },
+  { to: '/lab/defenses', label: 'Đánh giá phòng thủ', icon: ShieldPlus },
   { to: '/app/login', label: 'SecureDesk', icon: Ticket },
 ]
 

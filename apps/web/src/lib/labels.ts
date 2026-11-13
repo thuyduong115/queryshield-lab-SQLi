@@ -16,6 +16,7 @@ export const OUTCOME_LABEL: Record<Outcome, string> = {
   QUERY_ERROR: 'Câu SQL bị lỗi cú pháp',
   LAB_DISABLED: 'Lab không an toàn đang tắt',
   VALIDATION_ERROR: 'Dữ liệu không hợp lệ',
+  REJECTED_BY_VALIDATION: 'Bị allow-list chặn trước khi tới CSDL',
 }
 
 export const OUTCOME_SHORT: Record<Outcome, string> = {
@@ -24,6 +25,7 @@ export const OUTCOME_SHORT: Record<Outcome, string> = {
   QUERY_ERROR: 'Lỗi SQL',
   LAB_DISABLED: 'Đã tắt',
   VALIDATION_ERROR: '422',
+  REJECTED_BY_VALIDATION: 'Allow-list chặn',
 }
 
 export const OBSERVATION_TEXT: Record<string, string> = {
@@ -35,6 +37,8 @@ export const OBSERVATION_TEXT: Record<string, string> = {
     'Điều kiện kiểm tra mật khẩu crypt(...) nằm trong chú thích, không được thực thi.',
   INPUT_STAYED_INSIDE_LITERAL:
     'Input nằm trọn trong chuỗi SQL; lần này nó không thay đổi cấu trúc câu truy vấn.',
+  REJECTED_BEFORE_DATABASE:
+    'Lớp allow-list (L2) từ chối tên đăng nhập. Không có câu SQL nào được dựng hay gửi tới PostgreSQL.',
   VALUES_SENT_SEPARATELY:
     'Câu SQL là hằng số. Giá trị được gửi riêng ($1, $2) nên PostgreSQL chỉ so sánh chúng như dữ liệu.',
 }
@@ -43,4 +47,17 @@ export const ROLE_LABEL: Record<string, string> = {
   admin: 'Quản trị',
   staff: 'Nhân viên',
   student: 'Sinh viên',
+}
+
+export const LAYER_LABEL: Record<string, string> = {
+  binding: 'L1 Bind tham số',
+  validation: 'L2 Allow-list',
+  error_masking: 'L4 Che lỗi',
+  monitoring: 'L5 Giám sát',
+}
+
+export const ALERT_LABEL: Record<string, string> = {
+  QUOTE: 'dấu nháy',
+  COMMENT: 'chú thích SQL',
+  SEPARATOR: 'dấu chấm phẩy',
 }

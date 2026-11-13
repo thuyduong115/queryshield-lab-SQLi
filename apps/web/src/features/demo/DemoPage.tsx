@@ -192,7 +192,7 @@ export function DemoPage() {
             <SuiteSummary suite={state.suite} />
             <SuiteTable suite={state.suite} onlyGating />
             <Link className="button button--ghost" to="/lab/test-results">
-              Xem đủ T01–T08 và lịch sử chạy
+              Xem đủ các ca kiểm thử và lịch sử chạy
             </Link>
           </div>
         )}

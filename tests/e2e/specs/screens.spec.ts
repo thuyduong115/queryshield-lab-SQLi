@@ -38,8 +38,14 @@ for (const width of [1440, 390]) {
 
     await page.goto('/lab/test-results')
     await page.getByRole('button', { name: 'Chạy bộ kiểm thử' }).click()
-    await page.getByText(/16\/16|\/16/).first().waitFor()
+    await page.getByText(/\/18/).first().waitFor()
     await shot('tests')
+
+    await page.goto('/lab/defenses')
+    await page.getByRole('button', { name: 'Chạy ma trận đánh giá' }).click()
+    await page.locator('.eval-matrix').waitFor()
+    await page.waitForTimeout(500)
+    await shot('defenses')
 
     await page.goto('/app/login')
     await shot('desk-login')

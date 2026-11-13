@@ -47,6 +47,8 @@ const ATTACK_RUN: LoginRun = {
     observations: ['INPUT_STARTED_COMMENT', 'PASSWORD_CHECK_COMMENTED_OUT'],
   },
   query_error: null,
+  layers: ['monitoring'],
+  alerts: ['QUOTE', 'COMMENT'],
   duration_ms: 4,
   dataset_version: 'fixtures-v1',
   created_at: '2026-11-13T02:00:00Z',
