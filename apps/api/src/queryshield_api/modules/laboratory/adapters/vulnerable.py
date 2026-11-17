@@ -1,7 +1,7 @@
 """!!! DELIBERATELY VULNERABLE — EDUCATIONAL LAB ONLY — NEVER USE OR COPY THIS PATTERN !!!
 
 This file contains the approved exceptions to the project's "always parameterize" rule
-(see AGENTS.md and docs/12-SHOP-DEMO.md). It exists so the approved login, search and
+(see the safety boundary section of README.md). It exists so the approved login, search and
 second-order scenarios can show real SQL Injection against the synthetic fixture database.
 
 Containment:

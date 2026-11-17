@@ -1,6 +1,6 @@
 # Script demo — bản copy nhanh
 
-Bản rút gọn để copy khi quay hoặc trình bày. Lời giải thích đầy đủ nằm ở [12-SHOP-DEMO.md](12-SHOP-DEMO.md).
+Bản rút gọn để copy khi quay hoặc trình bày. Phần giới thiệu, kiến trúc và ranh giới an toàn nằm ở [README](../README.md).
 Mọi lệnh chạy trong **PowerShell** tại thư mục gốc repo. Dữ liệu đều là fixture giả, chỉ chạy local.
 
 > Về khoảng trắng: payload `admin' --` hoạt động dù có hay không có dấu cách sau `--`, vì PostgreSQL bắt đầu chú thích ngay tại `--` (MySQL thì cần dấu cách). Bộ test tự động dùng bản có dấu cách `admin' -- `.

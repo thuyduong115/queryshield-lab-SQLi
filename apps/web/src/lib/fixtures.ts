@@ -1,4 +1,4 @@
-// Public, disposable classroom fixtures (docs/03-DATA-MODEL.md). Never real credentials.
+// Public, disposable classroom fixtures (apps/api/.../db/fixtures.py). Never real credentials.
 export const DEMO = {
   validUser: 'student01',
   validPassword: 'StudentDemo123!',

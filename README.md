@@ -117,7 +117,7 @@ sequenceDiagram
 
 Vì vậy, kể cả khi bị inject, câu SQL của bản lỗi cũng không ghi, xóa hay đọc ra ngoài các bảng giả đã cấp quyền.
 
-Thêm sơ đồ (mô-đun backend, phân quyền, ma trận đánh giá) có trong [docs/diagrams/README.md](docs/diagrams/README.md) và [docs/02-ARCHITECTURE.md](docs/02-ARCHITECTURE.md).
+Thêm sơ đồ (mô-đun backend, phân quyền, ma trận đánh giá) có trong [docs/diagrams/README.md](docs/diagrams/README.md).
 
 ## Khác biệt duy nhất: nối chuỗi và bind tham số
 
@@ -219,8 +219,6 @@ Mỗi kết quả trên giao diện đến từ một truy vấn PostgreSQL th�
 - **Không lưu bí mật:** lịch sử quan sát che mật khẩu đã nhập và không lưu body request đăng nhập. Mật khẩu dạng thô trong `demo.users` là dữ liệu giả dùng để so sánh trong lớp học, **không** phải cách lưu mật khẩu nên làm trong hệ thống thật (hãy dùng Argon2id hoặc bcrypt).
 - **Giới hạn kết luận:** chặn được vài payload trong một lab không chứng minh ứng dụng miễn nhiễm SQL Injection. Ứng dụng thật còn cần xác thực, phân quyền và kiểm tra quyền sở hữu dữ liệu.
 
-Mô hình đe dọa đầy đủ có trong [docs/06-THREAT-MODEL.md](docs/06-THREAT-MODEL.md).
-
 ## Cấu trúc thư mục
 
 ```text
@@ -242,7 +240,7 @@ infra/compose.yaml           db, lab-admin, api, web
 tests/e2e/                   Playwright
 tools/postman/               collection + environment
 scripts/                     chạy test, xuất kết quả đánh giá
-docs/                        tài liệu thiết kế và kịch bản demo
+docs/                        kịch bản demo, sơ đồ, ảnh chụp màn hình
 reports/evaluation/          kết quả đánh giá đã xuất
 ```
 
@@ -250,16 +248,10 @@ reports/evaluation/          kết quả đánh giá đã xuất
 
 | Tài liệu | Nội dung |
 |---|---|
-| [00-SCOPE](docs/00-SCOPE.md) | Phạm vi và những gì project không làm |
-| [01-PRD](docs/01-PRD.md) | Yêu cầu sản phẩm |
-| [02-ARCHITECTURE](docs/02-ARCHITECTURE.md) | Kiến trúc chi tiết |
-| [03-DATA-MODEL](docs/03-DATA-MODEL.md) | Schema và dữ liệu giả |
-| [04-API-CONTRACT](docs/04-API-CONTRACT.md) | Đặc tả API |
-| [06-THREAT-MODEL](docs/06-THREAT-MODEL.md) | Mô hình đe dọa |
-| [07-TEST-STRATEGY](docs/07-TEST-STRATEGY.md) | Chiến lược kiểm thử |
-| [12-SHOP-DEMO](docs/12-SHOP-DEMO.md) | Cửa hàng, bảng quan sát và kịch bản trình bày |
-| [script-demo](docs/script-demo.md) | Input, SQL và lệnh để copy khi demo |
-| [diagrams](docs/diagrams/README.md) | Bộ sơ đồ Mermaid |
-| [11-REFERENCES](docs/11-REFERENCES.md) | Tài liệu tham khảo |
+| [docs/script-demo.md](docs/script-demo.md) | Kịch bản demo: input, SQL và lệnh để copy |
+| [docs/diagrams/README.md](docs/diagrams/README.md) | Bộ sơ đồ Mermaid: kiến trúc, mô-đun, trình tự, phân quyền, ma trận đánh giá |
+| [tools/postman/README.md](tools/postman/README.md) | Collection Postman và cách chạy bằng Newman |
+| http://127.0.0.1:8000/docs | Đặc tả API (OpenAPI), có khi stack đang chạy |
+| [`schema.py`](apps/api/src/queryshield_api/db/schema.py), [`fixtures.py`](apps/api/src/queryshield_api/db/fixtures.py) | Schema database, dữ liệu giả và phân quyền role |
 
 Kết quả đánh giá trong `reports/evaluation/2026-11-13-*` được đo trên bộ dữ liệu cũ `fixtures-v2` (mật khẩu bcrypt). Đó là bản ghi lịch sử, không phải số đo của phiên bản hiện tại.
