@@ -1,0 +1,36 @@
+name: pr-conventions
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  conventions:
+    name: Tên nhánh, tiêu đề PR, commit message
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Tên nhánh
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          re='^(feat|fix|docs|chore|refactor|test|ci)/[a-z0-9][a-z0-9-]*$'
+          [[ "$BRANCH" =~ ^dependabot/ || "$BRANCH" =~ $re ]] || { echo "::error::Nhánh '$BRANCH' sai quy ước <type>/<mo-ta>"; exit 1; }
+      - name: Commit message
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          re='^(feat|fix|docs|chore|refactor|test|ci|perf|build|style|revert)(\([A-Za-z0-9_-]+\))?!?: .+'
+          bad=0
+          while IFS= read -r line; do
+            msg="${line#* }"
+            [[ "$msg" =~ ^Merge\  ]] && continue
+            [[ "$msg" =~ $re ]] || { echo "::error::Commit sai Conventional Commits: $line"; bad=1; }
+          done < <(git log --format='%h %s' "$BASE..$HEAD")
+          exit $bad

@@ -1,0 +1,825 @@
+{
+  "info": {
+    "name": "QueryShield Lab",
+    "description": "Bộ request cục bộ cho kịch bản login-bypass. Chỉ dùng với stack chạy trên 127.0.0.1. Mật khẩu là fixture công khai dùng một lần, lưu trong biến collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('CSDL sẵn sàng', () => pm.expect(pm.response.json().database).to.eql('ok'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Danh sách kịch bản",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Có login-bypass', () => pm.expect(pm.response.json().scenarios.map(s => s.id)).to.include('login-bypass'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test case (không chứa mật khẩu)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs/login-bypass/test-cases",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs",
+            "login-bypass",
+            "test-cases"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Không lộ mật khẩu fixture', () => pm.expect(pm.response.text()).to.not.include(pm.variables.get('validPassword')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "T01 · Đăng nhập hợp lệ (secure)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs/login-bypass/execute",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs",
+            "login-bypass",
+            "execute"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mode\": \"secure\",\n  \"username\": \"student01\",\n  \"password\": \"{{validPassword}}\",\n  \"test_case_id\": \"T01\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('outcome = AUTHENTICATED', () => pm.expect(body.outcome).to.eql('AUTHENTICATED'));",
+              "pm.test('authenticated = true', () => pm.expect(body.authentication.authenticated).to.eql(true));",
+              "pm.test('Có run_id', () => pm.expect(body.run_id).to.be.a('string'));",
+              "pm.test('Mật khẩu không bị phản hồi lại', () => pm.expect(pm.response.text()).to.not.include(pm.variables.get('validPassword')));",
+              "pm.collectionVariables.set('lastRunId', body.run_id);",
+              "pm.test('Không có cookie/token', () => { pm.expect(pm.response.headers.has('Set-Cookie')).to.be.false; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "T02 · Sai mật khẩu (secure)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs/login-bypass/execute",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs",
+            "login-bypass",
+            "execute"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mode\": \"secure\",\n  \"username\": \"student01\",\n  \"password\": \"{{wrongPassword}}\",\n  \"test_case_id\": \"T02\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('outcome = DENIED', () => pm.expect(body.outcome).to.eql('DENIED'));",
+              "pm.test('authenticated = false', () => pm.expect(body.authentication.authenticated).to.eql(false));",
+              "pm.test('Có run_id', () => pm.expect(body.run_id).to.be.a('string'));",
+              "pm.test('Mật khẩu không bị phản hồi lại', () => pm.expect(pm.response.text()).to.not.include(pm.variables.get('wrongPassword')));",
+              "pm.collectionVariables.set('lastRunId', body.run_id);",
+              "pm.test('Không có cookie/token', () => { pm.expect(pm.response.headers.has('Set-Cookie')).to.be.false; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "T03 · Tấn công (vulnerable)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs/login-bypass/execute",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs",
+            "login-bypass",
+            "execute"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mode\": \"vulnerable\",\n  \"username\": \"admin' -- \",\n  \"password\": \"{{wrongPassword}}\",\n  \"test_case_id\": \"T03\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('outcome = AUTHENTICATED', () => pm.expect(body.outcome).to.eql('AUTHENTICATED'));",
+              "pm.test('authenticated = true', () => pm.expect(body.authentication.authenticated).to.eql(true));",
+              "pm.test('Có run_id', () => pm.expect(body.run_id).to.be.a('string'));",
+              "pm.test('Mật khẩu không bị phản hồi lại', () => pm.expect(pm.response.text()).to.not.include(pm.variables.get('wrongPassword')));",
+              "pm.collectionVariables.set('lastRunId', body.run_id);",
+              "pm.test('Không có cookie/token', () => { pm.expect(pm.response.headers.has('Set-Cookie')).to.be.false; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SecureDesk · phiên mô phỏng từ run tấn công",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/securedesk/simulated-session/{{lastRunId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "securedesk",
+            "simulated-session",
+            "{{lastRunId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Chỉ là mô phỏng, vai trò admin', () => { const b = pm.response.json(); pm.expect(b.simulated).to.be.true; pm.expect(b.profile.role).to.eql('admin'); });",
+              "pm.test('Không có cookie/token', () => { pm.expect(pm.response.headers.has('Set-Cookie')).to.be.false; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "T03 · Tấn công lại (secure)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs/login-bypass/execute",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs",
+            "login-bypass",
+            "execute"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mode\": \"secure\",\n  \"username\": \"admin' -- \",\n  \"password\": \"{{wrongPassword}}\",\n  \"test_case_id\": \"T03\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('outcome = DENIED', () => pm.expect(body.outcome).to.eql('DENIED'));",
+              "pm.test('authenticated = false', () => pm.expect(body.authentication.authenticated).to.eql(false));",
+              "pm.test('Có run_id', () => pm.expect(body.run_id).to.be.a('string'));",
+              "pm.test('Mật khẩu không bị phản hồi lại', () => pm.expect(pm.response.text()).to.not.include(pm.variables.get('wrongPassword')));",
+              "pm.collectionVariables.set('lastRunId', body.run_id);",
+              "pm.test('Không có cookie/token', () => { pm.expect(pm.response.headers.has('Set-Cookie')).to.be.false; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Đọc run gần nhất",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs/runs/{{lastRunId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs",
+            "runs",
+            "{{lastRunId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Run được lưu với kết quả đo', () => pm.expect(pm.response.json().outcome).to.eql('DENIED'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chạy bộ kiểm thử T01–T09",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs/login-bypass/tests/run",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs",
+            "login-bypass",
+            "tests",
+            "run"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const b = pm.response.json();",
+              "pm.test('18 lần chạy (T01–T09 × 2 chế độ)', () => pm.expect(b.total).to.eql(18));",
+              "pm.test('Không có ca trượt', () => pm.expect(b.failed).to.eql(0));",
+              "pm.test('Không ghi Đạt cho ca bị bỏ qua', () => b.results.filter(r => r.status === 'skipped').forEach(r => pm.expect(r.passed).to.be.null));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kết quả gần nhất",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/labs/login-bypass/results?limit=20",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "labs",
+            "login-bypass",
+            "results"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Có danh sách run', () => pm.expect(pm.response.json().runs).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "P7 · Cửa hàng và second-order",
+      "item": [
+        {
+          "name": "Tìm bình thường · nối chuỗi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"vulnerable\",\n  \"value\": \"Bàn phím\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cùng fixture', () => pm.expect(pm.response.json().rows.map(x => x.id)).to.eql([1]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tìm bình thường · bind",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"secure\",\n  \"value\": \"Bàn phím\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cùng fixture', () => pm.expect(pm.response.json().rows.map(x => x.id)).to.eql([1]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Input SQLi · nối chuỗi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"vulnerable\",\n  \"value\": \"' OR true -- \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Có mẫu nội bộ', () => pm.expect(pm.response.json().rows.some(x => x.published === false)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cùng input · bind",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"secure\",\n  \"value\": \"' OR true -- \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Input là dữ liệu', () => pm.expect(pm.response.json().rows).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lưu hồ sơ bằng bind",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/profiles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "profiles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"admin' -- \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('shopProfileId', pm.response.json().profile_id);",
+                  "pm.test('Lưu nguyên văn', () => pm.expect(pm.response.json().rows[0].customer_name).to.eql(\"admin' -- \"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Đọc lại cùng hồ sơ · nối chuỗi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/order-report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "order-report"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profile_id\": \"{{shopProfileId}}\",\n  \"mode\": \"vulnerable\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Quan sát internal', () => pm.expect(pm.response.json().rows.map(x => x.id)).to.eql([1003,1004]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Đọc lại cùng hồ sơ · bind",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/order-report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "order-report"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profile_id\": \"{{shopProfileId}}\",\n  \"mode\": \"secure\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Không khớp tên', () => pm.expect(pm.response.json().rows).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lịch sử quan sát",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/observations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "observations"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Có quan sát DB', () => pm.expect(pm.response.json().observations).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Database local hiện tại",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/database",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "database"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Đủ fixture sản phẩm', () => pm.expect(pm.response.json().products.length).to.eql(7));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "validPassword",
+      "value": "StudentDemo123!"
+    },
+    {
+      "key": "wrongPassword",
+      "value": "wrong-password"
+    },
+    {
+      "key": "lastRunId",
+      "value": ""
+    }
+  ]
+}

@@ -42,3 +42,7 @@ CODEX_BOOTSTRAP.md
 docs/08-ROADMAP.md
 prompts/
 harness/
+
+# pnpm store created by containerized installs
+.pnpm-store/
+tests/e2e/screens/
