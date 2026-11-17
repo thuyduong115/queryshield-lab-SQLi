@@ -3,7 +3,7 @@
 Bản rút gọn để copy khi quay hoặc trình bày. Lời giải thích đầy đủ nằm ở [12-SHOP-DEMO.md](12-SHOP-DEMO.md).
 Mọi lệnh chạy trong **PowerShell** tại thư mục gốc repo. Dữ liệu đều là fixture giả, chỉ chạy local.
 
-> Lưu ý khoảng trắng: payload `admin' -- ` có **một dấu cách ở cuối** (sau `--`). Khi copy, giữ nguyên khoảng trắng đó.
+> Về khoảng trắng: payload `admin' --` hoạt động dù có hay không có dấu cách sau `--`, vì PostgreSQL bắt đầu chú thích ngay tại `--` (MySQL thì cần dấu cách). Bộ test tự động dùng bản có dấu cách `admin' -- `.
 
 ---
 
@@ -103,7 +103,7 @@ Mong đợi: **thất bại** ở cả hai bản.
 
 Chọn `Phần 1 · Không bảo vệ (nối chuỗi)`.
 
-Tên đăng nhập (có dấu cách cuối):
+Tên đăng nhập:
 
 ```text
 admin' --
