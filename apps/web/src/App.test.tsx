@@ -36,7 +36,7 @@ const ATTACK_RUN: LoginRun = {
       { text: ' ', origin: 'username', syntax: 'code' },
       { text: '-- ', origin: 'username', syntax: 'comment' },
       {
-        text: "' AND password_hash = crypt('",
+        text: "' AND password = '",
         origin: 'template',
         syntax: 'comment',
       },
@@ -82,7 +82,7 @@ function renderAt(path: string, routes: Record<string, () => unknown>) {
 
 describe('QueryShield Lab', () => {
   it('renders the overview with live API status', async () => {
-    renderAt('/', {})
+    renderAt('/lab/overview', {})
     expect(
       screen.getByRole('heading', { name: 'Dữ liệu phải nằm ngoài mã SQL' }),
     ).toBeInTheDocument()
@@ -140,7 +140,7 @@ describe('SqlInspector', () => {
       'seg--password',
     )
     expect(
-      screen.getByText(/crypt\(\.\.\.\) nằm trong chú thích/),
+      screen.getByText(/password = \.\.\. nằm trong chú thích/),
     ).toBeInTheDocument()
   })
 

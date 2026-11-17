@@ -19,7 +19,8 @@ export function CredentialFields({
           id={`${idPrefix}-username`}
           className="mono"
           value={username}
-          maxLength={200}
+          maxLength={128}
+          required
           autoComplete="off"
           spellCheck={false}
           onChange={(event) => onUsername(event.target.value)}
@@ -32,7 +33,8 @@ export function CredentialFields({
           className="mono"
           type="password"
           value={password}
-          maxLength={200}
+          maxLength={128}
+          required
           autoComplete="off"
           onChange={(event) => onPassword(event.target.value)}
         />

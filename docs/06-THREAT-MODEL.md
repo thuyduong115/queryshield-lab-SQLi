@@ -1,5 +1,7 @@
 # 06 — Threat Model and Laboratory Safety Boundary
 
+> Ngoại lệ P7 đã duyệt ngày 2026-11-13: vulnerable.py được dùng cho login, tìm sản phẩm và báo cáo đơn second-order, chỉ trên fixture giả local. Role qs_lab_query có SELECT trên demo.users/products/orders, không có quyền ghi hay đọc lab; role app chỉ INSERT hồ sơ và bằng chứng, không đọc password. Mật khẩu fixture dạng thô chỉ xuất hiện trong database snapshot có guard local + unsafe; mật khẩu đã nhập không vào lịch sử. Bằng chứng SQL luôn che mật khẩu và ghi rõ là diễn giải. Các ranh giới khác giữ nguyên. [Chi tiết P7](12-SHOP-DEMO.md) thay thế các phát biểu single-fixture cũ.
+
 ## Boundary statement
 QueryShield Lab deliberately includes one SQL-injection-vulnerable adapter **solely** for local education. No public deployment of this adapter. The threat model must protect the development laptop, real credentials and other local services from that deliberate flaw.
 

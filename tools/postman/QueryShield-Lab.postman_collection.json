@@ -355,7 +355,7 @@
       ]
     },
     {
-      "name": "Chạy bộ kiểm thử T01–T08",
+      "name": "Chạy bộ kiểm thử T01–T09",
       "request": {
         "method": "POST",
         "header": [
@@ -384,7 +384,7 @@
             "type": "text/javascript",
             "exec": [
               "const b = pm.response.json();",
-              "pm.test('16 lần chạy', () => pm.expect(b.total).to.eql(16));",
+              "pm.test('18 lần chạy (T01–T09 × 2 chế độ)', () => pm.expect(b.total).to.eql(18));",
               "pm.test('Không có ca trượt', () => pm.expect(b.failed).to.eql(0));",
               "pm.test('Không ghi Đạt cho ca bị bỏ qua', () => b.results.filter(r => r.status === 'skipped').forEach(r => pm.expect(r.passed).to.be.null));"
             ]
@@ -429,6 +429,381 @@
               "pm.test('Có danh sách run', () => pm.expect(pm.response.json().runs).to.be.an('array'));"
             ]
           }
+        }
+      ]
+    },
+    {
+      "name": "P7 · Cửa hàng và second-order",
+      "item": [
+        {
+          "name": "Tìm bình thường · nối chuỗi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"vulnerable\",\n  \"value\": \"Bàn phím\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cùng fixture', () => pm.expect(pm.response.json().rows.map(x => x.id)).to.eql([1]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tìm bình thường · bind",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"secure\",\n  \"value\": \"Bàn phím\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cùng fixture', () => pm.expect(pm.response.json().rows.map(x => x.id)).to.eql([1]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Input SQLi · nối chuỗi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"vulnerable\",\n  \"value\": \"' OR true -- \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Có mẫu nội bộ', () => pm.expect(pm.response.json().rows.some(x => x.published === false)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cùng input · bind",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "search"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"secure\",\n  \"value\": \"' OR true -- \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Input là dữ liệu', () => pm.expect(pm.response.json().rows).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lưu hồ sơ bằng bind",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/profiles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "profiles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"admin' -- \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('shopProfileId', pm.response.json().profile_id);",
+                  "pm.test('Lưu nguyên văn', () => pm.expect(pm.response.json().rows[0].customer_name).to.eql(\"admin' -- \"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Đọc lại cùng hồ sơ · nối chuỗi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/order-report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "order-report"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profile_id\": \"{{shopProfileId}}\",\n  \"mode\": \"vulnerable\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Quan sát internal', () => pm.expect(pm.response.json().rows.map(x => x.id)).to.eql([1003,1004]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Đọc lại cùng hồ sơ · bind",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/order-report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "order-report"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profile_id\": \"{{shopProfileId}}\",\n  \"mode\": \"secure\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Không khớp tên', () => pm.expect(pm.response.json().rows).to.eql([]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lịch sử quan sát",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/observations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "observations"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Có quan sát DB', () => pm.expect(pm.response.json().observations).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Database local hiện tại",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shop/database",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shop",
+                "database"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Đủ fixture sản phẩm', () => pm.expect(pm.response.json().products.length).to.eql(7));"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

@@ -1,6 +1,6 @@
 """Idempotent schema DDL for the lab database. Executed only by the local admin CLI."""
 
-DATASET_VERSION = "fixtures-v2"
+DATASET_VERSION = "fixtures-v3-shop"
 
 QUERY_ROLE = "qs_lab_query"
 APP_ROLE = "qs_lab_app"
@@ -14,7 +14,7 @@ CREATE SCHEMA IF NOT EXISTS lab;
 CREATE TABLE IF NOT EXISTS demo.users (
     id            BIGINT PRIMARY KEY,
     username      TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
+    password      TEXT NOT NULL,
     role          TEXT NOT NULL CHECK (role IN ('admin', 'staff', 'student')),
     display_name  TEXT NOT NULL,
     department    TEXT NOT NULL,
@@ -90,6 +90,38 @@ CREATE TABLE IF NOT EXISTS lab.security_events (
 
 CREATE INDEX IF NOT EXISTS runs_created_at_idx ON lab.runs (created_at DESC);
 CREATE INDEX IF NOT EXISTS runs_suite_idx ON lab.runs (suite_id);
+
+-- Migrate the old hashed classroom fixture; the version change triggers a reseed.
+ALTER TABLE demo.users ADD COLUMN IF NOT EXISTS password TEXT;
+ALTER TABLE demo.users DROP COLUMN IF EXISTS password_hash;
+
+CREATE TABLE IF NOT EXISTS demo.products (
+    id BIGINT PRIMARY KEY,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    price INT NOT NULL CHECK (price >= 0),
+    published BOOLEAN NOT NULL
+);
+CREATE TABLE IF NOT EXISTS demo.orders (
+    id BIGINT PRIMARY KEY,
+    customer_name TEXT NOT NULL,
+    item TEXT NOT NULL,
+    total INT NOT NULL,
+    visibility TEXT NOT NULL CHECK (visibility IN ('public', 'internal'))
+);
+CREATE TABLE IF NOT EXISTS demo.profiles (
+    id UUID PRIMARY KEY,
+    customer_name TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS lab.observations (
+    id UUID PRIMARY KEY,
+    operation TEXT NOT NULL,
+    mode TEXT NOT NULL,
+    outcome TEXT NOT NULL,
+    detail JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS observations_created_idx ON lab.observations (created_at DESC);
 """
 
 # {db} and role identifiers are composed with psycopg.sql.Identifier by the admin CLI.
@@ -101,15 +133,17 @@ REVOKE ALL ON ALL TABLES IN SCHEMA demo, lab FROM {query_role}, {app_role};
 
 GRANT CONNECT ON DATABASE {db} TO {query_role}, {app_role};
 
--- Login adapters (vulnerable and secure alike): read the fixture users table, nothing else.
+-- Read-only adapters: only the approved synthetic login, search and order fixtures.
 GRANT USAGE ON SCHEMA demo TO {query_role};
-GRANT SELECT ON demo.users TO {query_role};
+GRANT SELECT ON demo.users, demo.products, demo.orders TO {query_role};
 
 -- Application role: evidence persistence, metadata and the simulated dashboard.
--- No access to demo.users.password_hash.
+-- No access to demo.users.password.
 GRANT USAGE ON SCHEMA demo, lab TO {app_role};
 GRANT SELECT (id, username, role, display_name, department) ON demo.users TO {app_role};
 GRANT SELECT ON demo.tickets TO {app_role};
 GRANT SELECT ON lab.dataset, lab.scenarios, lab.test_cases TO {app_role};
 GRANT SELECT, INSERT ON lab.runs, lab.security_events TO {app_role};
+GRANT SELECT ON demo.products, demo.orders TO {app_role};
+GRANT SELECT, INSERT ON demo.profiles, lab.observations TO {app_role};
 """

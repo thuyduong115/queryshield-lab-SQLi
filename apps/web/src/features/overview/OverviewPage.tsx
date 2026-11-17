@@ -59,8 +59,8 @@ export function OverviewPage() {
           <div>
             <dt>Chỉ khác một biến</dt>
             <dd>
-              Cùng bảng, cùng cột, cùng điều kiện <code>crypt(…)</code>, cùng
-              fixture. Chỉ khác nối chuỗi so với bind tham số.
+              Cùng bảng, cùng cột, cùng điều kiện <code>password = …</code>,
+              cùng fixture. Chỉ khác nối chuỗi so với bind tham số.
             </dd>
           </div>
           <div>

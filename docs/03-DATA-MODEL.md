@@ -1,5 +1,7 @@
 # 03 — Data Model and Deterministic Fixtures
 
+> Dataset hiện tại `fixtures-v3-shop`: `demo.users.password` dạng thô thay password_hash; thêm products, orders, profiles và lab.observations. Đây là thay đổi fixture đã được duyệt cho giảng dạy; seed/reset sẽ khôi phục bộ dữ liệu mới và xóa lịch sử cũ. Schema nguồn: apps/api/src/queryshield_api/db/schema.py. Xem [12-SHOP-DEMO.md](12-SHOP-DEMO.md); bảng bcrypt cũ bên dưới chỉ còn mang tính lịch sử.
+
 ## Database strategy
 One PostgreSQL 17 database called `queryshield_lab` with schema separation:
 - `demo`: fixture-only data used in the deliberately vulnerable/secure login.

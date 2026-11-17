@@ -1,6 +1,6 @@
 """Deterministic synthetic fixtures. Passwords are public, disposable classroom values.
 
-They are hashed with pgcrypto bcrypt during seeding and never stored in plaintext.
+Plaintext storage is an explicitly approved classroom simplification, local fixtures only.
 """
 
 from dataclasses import dataclass
@@ -100,3 +100,20 @@ SCENARIO = {
         "vào SQL và khi được bind tham số bằng Psycopg, trên cùng dữ liệu tổng hợp."
     ),
 }
+
+PRODUCTS = (
+    (1, "Bàn phím cơ K68", "Góc làm việc", 890000, True),
+    (2, "Chuột không dây M20", "Góc làm việc", 320000, True),
+    (3, "Tai nghe Studio S1", "Âm thanh", 1250000, True),
+    (4, "Đèn bàn Focus", "Góc làm việc", 450000, True),
+    (5, "Sổ tay chấm bi", "Văn phòng phẩm", 85000, True),
+    (6, "Túi đựng laptop 14 inch", "Phụ kiện", 290000, True),
+    (7, "[Nội bộ] Bộ thử nghiệm chưa mở bán", "Mẫu thử", 1, False),
+)
+
+ORDERS = (
+    (1001, "student01", "Bàn phím cơ K68", 890000, "public"),
+    (1002, "student01", "Sổ tay chấm bi", 85000, "public"),
+    (1003, "admin", "Đèn bàn Focus", 450000, "public"),
+    (1004, "admin", "[Nội bộ] Đơn thử nghiệm", 1, "internal"),
+)

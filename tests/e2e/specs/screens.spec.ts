@@ -11,7 +11,39 @@ for (const width of [1440, 390]) {
     const shot = (name: string) =>
       page.screenshot({ path: `${OUT}/${name}-${width}.png`, fullPage: true })
 
+    // P7 shop surfaces, captured after a real query so evidence panels have content.
     await page.goto('/')
+    await page.getByLabel('Bản xử lý SQL').selectOption('vulnerable')
+    await page.getByLabel('Tìm sản phẩm', { exact: true }).fill("' OR true -- ")
+    await page.getByRole('button', { name: 'Tìm kiếm', exact: true }).click()
+    await page
+      .getByRole('heading', { name: '[Nội bộ] Bộ thử nghiệm chưa mở bán' })
+      .waitFor()
+    await shot('shop-search')
+
+    await page.goto('/login')
+    await page.getByLabel('Bản xử lý SQL').selectOption('vulnerable')
+    await page.getByLabel('Tên đăng nhập').fill("admin' -- ")
+    await page.getByLabel('Mật khẩu', { exact: true }).fill('wrong-password')
+    await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click()
+    await page.getByRole('status').waitFor()
+    await shot('shop-login')
+
+    await page.goto('/profile')
+    await page.getByLabel('Tên khách hàng dùng tra đơn').fill("admin' -- ")
+    await page.getByRole('button', { name: 'Lưu hồ sơ', exact: true }).click()
+    await page.getByRole('status').waitFor()
+    await page.getByLabel('Bản xử lý SQL').selectOption('vulnerable')
+    await page.getByRole('button', { name: 'Xem đơn hàng', exact: true }).click()
+    await page.getByText('Kết quả bước đọc', { exact: false }).waitFor()
+    await shot('shop-profile')
+
+    await page.goto('/admin')
+    await page.locator('.observer-detail').waitFor()
+    await page.waitForTimeout(500)
+    await shot('shop-admin')
+
+    await page.goto('/lab/overview')
     await page.getByText('CSDL sẵn sàng').waitFor()
     await shot('overview')
 

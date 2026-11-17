@@ -5,15 +5,15 @@ const BEFORE = `# vulnerable.py (chỉ dùng trong lab)
 query = (
     "SELECT id, username, role FROM demo.users "
     f"WHERE username = '{username}' "
-    f"AND password_hash = crypt('{password}', password_hash) LIMIT 1"
+    f"AND password = '{password}' LIMIT 1"
 )
-cur.execute(query)`
+cur.execute(query, prepare=True)`
 
 const AFTER = `# secure.py
 SECURE_LOGIN_SQL = (
     "SELECT id, username, role FROM demo.users "
     "WHERE username = %s "
-    "AND password_hash = crypt(%s, password_hash) LIMIT 1"
+    "AND password = %s LIMIT 1"
 )
 cur.execute(SECURE_LOGIN_SQL, (username, password))`
 
@@ -37,7 +37,7 @@ export function CodeDiff() {
       <ul className="patch-facts">
         <li>
           Cùng bảng <code>demo.users</code>, cùng cột, cùng điều kiện{' '}
-          <code>crypt(…)</code>, cùng dữ liệu fixture.
+          <code>password = …</code>, cùng dữ liệu fixture.
         </li>
         <li>
           Khác duy nhất: giá trị đi qua tham số <code>$1</code>, <code>$2</code>{' '}

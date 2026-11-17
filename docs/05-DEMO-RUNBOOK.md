@@ -1,5 +1,7 @@
 # 05 — Demo Runbook: Attack → Defend → Retest
 
+> Kịch bản quay hiện tại dùng cửa hàng + `/admin`, login/search/second-order và mật khẩu fixture dạng thô. Làm theo [12-SHOP-DEMO.md](12-SHOP-DEMO.md). Phần SecureDesk/pgcrypto bên dưới là kịch bản phiên bản cũ.
+
 ## Demo objective
 Prove the causal difference between untrusted input **inserted into SQL syntax** and values **bound as data**, then show a repeatable test. Use one database and unchanged fixtures.
 

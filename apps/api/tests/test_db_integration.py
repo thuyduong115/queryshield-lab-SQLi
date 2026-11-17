@@ -77,7 +77,7 @@ def test_query_role_is_read_only_and_scoped(lab_db) -> None:
         for statement in (
             "SELECT * FROM lab.runs",
             "SELECT * FROM demo.tickets",
-            "INSERT INTO demo.users (id, username, password_hash, role, display_name, "
+            "INSERT INTO demo.users (id, username, password, role, display_name, "
             "department) VALUES (99, 'x', 'x', 'admin', 'x', 'x')",
             "CREATE TABLE demo.evil (id int)",
         ):
@@ -88,18 +88,17 @@ def test_query_role_is_read_only_and_scoped(lab_db) -> None:
     assert timeout == "2s" and read_only == "on"
 
 
-def test_app_role_cannot_read_password_hashes(lab_db) -> None:
+def test_app_role_cannot_read_fixture_passwords(lab_db) -> None:
     with psycopg.connect(lab_db["app"], autocommit=True) as conn:
         with pytest.raises(psycopg.errors.InsufficientPrivilege):
-            conn.execute("SELECT password_hash FROM demo.users")
+            conn.execute("SELECT password FROM demo.users")
         with pytest.raises(psycopg.errors.InsufficientPrivilege):
             conn.execute("DELETE FROM lab.runs")
 
 
-def test_passwords_are_hashed_not_plaintext(lab_db) -> None:
+def test_disposable_fixture_passwords_are_plaintext_for_teaching(lab_db) -> None:
     with psycopg.connect(lab_db["admin"]) as conn:
-        rows = conn.execute("SELECT username, password_hash FROM demo.users").fetchall()
+        rows = conn.execute("SELECT username, password FROM demo.users").fetchall()
     plaintext = {u.username: u.demo_password for u in USERS}
-    for username, password_hash in rows:
-        assert password_hash.startswith("$2a$")
-        assert plaintext[username] not in password_hash
+    for username, password in rows:
+        assert password == plaintext[username]

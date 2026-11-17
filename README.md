@@ -1,5 +1,7 @@
 # QueryShield Lab
 
+Luồng chính hiện là **cửa hàng + bảng quan sát SQL**: `/` (tìm sản phẩm), `/login`, `/profile` (second-order), `/admin` (SQL, tham số, kết quả và database). Mở cửa hàng và `/admin` ở hai tab để quay demo. Xem [hướng dẫn cửa hàng](docs/12-SHOP-DEMO.md) về cách chạy, file code và kịch bản so sánh. Dataset mới `fixtures-v3-shop` dùng mật khẩu **fixture giả** dạng thô theo yêu cầu giảng dạy; mật khẩu đã nhập vẫn không được ghi vào lịch sử. Các phần SecureDesk/bcrypt bên dưới mô tả luồng phiên bản trước.
+
 QueryShield Lab là phòng thí nghiệm SQL Injection chạy hoàn toàn trên máy cục bộ. Bên trong có **SecureDesk**, một cổng hỗ trợ nội bộ giả lập đóng vai trò hệ thống bị tấn công. Demo gồm hai phần:
 
 1. **Lỗ hổng và cách tấn công:** backend nối chuỗi input vào câu SQL; payload `admin' -- ` đăng nhập vào `admin` với mật khẩu sai.
@@ -38,12 +40,12 @@ Mọi cổng chỉ bind vào loopback. Nếu `.env` để mặc định (`LAB_EN
 
 Trang **Đánh giá phòng thủ** (`/lab/defenses`) chạy cùng năm ca kiểm thử qua bốn cấu hình:
 
-| Cấu hình | Lớp |
-|---|---|
-| C0 | Nối chuỗi, chỉ có giám sát |
-| C1 | Nối chuỗi + allow-list tên đăng nhập (L2) |
-| C2 | Bind tham số (L1) |
-| C3 | Bind tham số (L1) + allow-list (L2) |
+| Cấu hình | Lớp                                            |
+| ---------- | ----------------------------------------------- |
+| C0         | Nối chuỗi, chỉ có giám sát                |
+| C1         | Nối chuỗi + allow-list tên đăng nhập (L2) |
+| C2         | Bind tham số (L1)                              |
+| C3         | Bind tham số (L1) + allow-list (L2)            |
 
 Mỗi cấu hình được đo trên: tấn công có bị chặn không, người dùng hợp lệ (gồm `o'connor` có dấu nháy) có bị chặn nhầm không, số cảnh báo của lớp giám sát (L5). Quyền của role adapter (L3) được đọc trực tiếp từ catalog PostgreSQL. Kỳ vọng được ghi sẵn trong `apps/api/src/queryshield_api/modules/evaluation/matrix.py`.
 
@@ -81,7 +83,7 @@ apps/api/src/queryshield_api/
   core/                         lỗi chuẩn hóa, guard an toàn
   db/                           schema, fixture, kết nối, CLI quản trị (bootstrap/reset/check)
   modules/laboratory/           router, service, inspector, adapters/secure.py, adapters/vulnerable.py
-  modules/experiments/          catalog T01–T08, runner, lưu bằng chứng
+  modules/experiments/          catalog T01–T09, runner, lưu bằng chứng
   modules/securedesk/           phiên mô phỏng của SecureDesk (không cấp token)
 apps/web/src/
   app/ components/ lib/         khung, thành phần dùng chung, API client

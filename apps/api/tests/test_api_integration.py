@@ -22,7 +22,7 @@ def client(api_env) -> TestClient:
 def test_health_reports_database_and_dataset(client) -> None:
     body = client.get("/api/v1/health").json()
     assert body["database"] == "ok"
-    assert body["datasetVersion"] == "fixtures-v2"
+    assert body["datasetVersion"] == "fixtures-v3-shop"
     assert body["unsafeLabEnabled"] is True
 
 

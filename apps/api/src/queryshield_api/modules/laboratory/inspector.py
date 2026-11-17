@@ -108,7 +108,8 @@ def vulnerable_inspector(username: str, template: str, parts_builder) -> Inspect
     if "comment" in username_syntax:
         observations.append("INPUT_STARTED_COMMENT")
     if any(
-        s.origin == "template" and s.syntax == "comment" and "crypt(" in s.text for s in segments
+        s.origin == "template" and s.syntax == "comment" and "password =" in s.text
+        for s in segments
     ):
         observations.append("PASSWORD_CHECK_COMMENTED_OUT")
     if not observations:

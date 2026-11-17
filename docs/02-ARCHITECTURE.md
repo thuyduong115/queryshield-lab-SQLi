@@ -1,5 +1,7 @@
 # 02 — Architecture (Modular Monolith)
 
+> P7 giữ một React, một FastAPI, một PostgreSQL. Module shop thêm sản phẩm, hồ sơ và báo cáo đơn; adapter unsafe vẫn duy nhất vulnerable.py. Login chuyển sang `password = %s` trên fixture dạng thô ở cả hai bản. `lab.observations` lưu bằng chứng đã che, admin polling mỗi 2 giây. Chi tiết và ngoại lệ hiện hành: [12-SHOP-DEMO.md](12-SHOP-DEMO.md); thay thế mô tả bcrypt/single-fixture cũ dưới đây.
+
 ## Decisions
 - Single frontend website, single FastAPI backend, single PostgreSQL **database**; modular architecture instead of microservices.
 - Browser communicates only with FastAPI JSON API. Client never sends SQL directly to database.

@@ -19,6 +19,7 @@ class LoginOutcome:
     username: str | None
     role: str | None
     rows_returned: int
+    rows: tuple[dict, ...] = ()
 
 
 class LoginAdapter(Protocol):
@@ -32,4 +33,4 @@ def outcome_from_rows(rows: list[dict]) -> LoginOutcome:
     if not rows:
         return LoginOutcome(False, None, None, 0)
     first = rows[0]
-    return LoginOutcome(True, first["username"], first["role"], len(rows))
+    return LoginOutcome(True, first["username"], first["role"], len(rows), tuple(rows))

@@ -1,5 +1,7 @@
 # 07 — Verification and Test Strategy
 
+> P7 thêm kiểm thử search (input thường và SQLi), second-order (ghi bind → đọc lại nối chuỗi/bind trên cùng UUID), guard production trước DB, snapshot local, dữ liệu và lịch sử không chứa mật khẩu input. Các bài login cũ giữ nguyên outcome, đổi kỳ vọng storage sang fixture plaintext. Browser mở hai tab cửa hàng/admin và kiểm tra cùng run ID. Chi tiết: [12-SHOP-DEMO.md](12-SHOP-DEMO.md). Không dùng kết quả fixtures-v2 để chứng nhận fixtures-v3-shop.
+
 ## Principles
 - Assert *observed* result, not presence/absence of SQL keywords.
 - Use one Postgres fixture dataset in comparable conditions; test resets before a suite.

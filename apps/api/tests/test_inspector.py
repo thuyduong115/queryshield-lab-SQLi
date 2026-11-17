@@ -35,7 +35,7 @@ def test_payload_is_shown_escaping_literal_and_commenting_password_check() -> No
         "PASSWORD_CHECK_COMMENTED_OUT",
     } <= set(result.observations)
     commented = "".join(s.text for s in result.segments if s.syntax == "comment")
-    assert "crypt(" in commented
+    assert "password =" in commented
 
 
 def test_benign_input_stays_inside_literal() -> None:

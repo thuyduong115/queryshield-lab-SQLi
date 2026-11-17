@@ -1,5 +1,41 @@
 export type Mode = 'vulnerable' | 'secure'
 
+export type DataRow = Record<string, string | number | boolean | null>
+export type ShopDetail = {
+  inspector: {
+    query_template: string
+    sql_preview_redacted: string
+    preview_label: string
+    parameters: unknown[]
+  }
+  rows: DataRow[]
+  duration_ms: number | null
+  sqlstate: string | null
+  saved_value?: string | null
+  profile_id?: string | null
+}
+export type ShopRun = ShopDetail & {
+  id: string
+  mode: Mode
+  operation: string
+  outcome: string
+}
+export type Observation = {
+  id: string
+  operation: string
+  mode: Mode
+  outcome: string
+  detail: ShopDetail
+  created_at: string
+}
+export type DatabaseSnapshot = {
+  users: DataRow[]
+  products: DataRow[]
+  orders: DataRow[]
+  profiles: DataRow[]
+  notice: string
+}
+
 export type Outcome =
   | 'AUTHENTICATED'
   | 'DENIED'

@@ -16,13 +16,14 @@ import { NavLink, Outlet } from 'react-router'
 import { useHealth } from '../lib/health'
 
 const NAV = [
-  { to: '/', label: 'Tổng quan', icon: Home, end: true },
+  { to: '/lab/overview', label: 'Tổng quan', icon: Home, end: true },
   { to: '/demo', label: 'Kịch bản demo', icon: Presentation },
   { to: '/lab/login-bypass', label: 'Lab tự do', icon: FlaskConical },
   { to: '/lab/comparison', label: 'So sánh', icon: Columns2 },
   { to: '/lab/test-results', label: 'Kiểm thử', icon: ClipboardCheck },
   { to: '/lab/defenses', label: 'Đánh giá phòng thủ', icon: ShieldPlus },
-  { to: '/app/login', label: 'SecureDesk', icon: Ticket },
+  { to: '/', label: 'Cửa hàng demo', icon: Ticket },
+  { to: '/admin', label: 'Bảng quan sát SQL', icon: FlaskConical },
 ]
 
 function StatusStrip() {

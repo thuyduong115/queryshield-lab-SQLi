@@ -110,7 +110,8 @@ def apply_schema(conn: psycopg.Connection, config: AdminConfig) -> None:
 def seed(conn: psycopg.Connection) -> None:
     with conn.transaction():
         conn.execute(
-            "TRUNCATE lab.security_events, lab.runs, lab.test_cases, demo.tickets, demo.users"
+            "TRUNCATE lab.observations, demo.profiles, demo.orders, demo.products, "
+            "lab.security_events, lab.runs, lab.test_cases, demo.tickets, demo.users"
         )
         conn.execute("DELETE FROM lab.dataset")
         conn.execute("DELETE FROM lab.scenarios")
@@ -120,8 +121,8 @@ def seed(conn: psycopg.Connection) -> None:
         )
         with conn.cursor() as cur:
             cur.executemany(
-                "INSERT INTO demo.users (id, username, password_hash, role, display_name, "
-                "department) VALUES (%s, %s, crypt(%s, gen_salt('bf', 8)), %s, %s, %s)",
+                "INSERT INTO demo.users (id, username, password, role, display_name, "
+                "department) VALUES (%s, %s, %s, %s, %s, %s)",
                 [
                     (u.id, u.username, u.demo_password, u.role, u.display_name, u.department)
                     for u in fixtures.USERS
@@ -151,6 +152,18 @@ def seed(conn: psycopg.Connection) -> None:
                 ],
             )
         conn.execute("INSERT INTO lab.dataset (version) VALUES (%s)", (schema.DATASET_VERSION,))
+        conn.execute("ALTER TABLE demo.users ALTER COLUMN password SET NOT NULL")
+        with conn.cursor() as cur:
+            cur.executemany(
+                "INSERT INTO demo.products (id, name, category, price, published) "
+                "VALUES (%s, %s, %s, %s, %s)",
+                fixtures.PRODUCTS,
+            )
+            cur.executemany(
+                "INSERT INTO demo.orders (id, customer_name, item, total, visibility) "
+                "VALUES (%s, %s, %s, %s, %s)",
+                fixtures.ORDERS,
+            )
 
 
 def bootstrap(config: AdminConfig, *, force_seed: bool = False) -> str:

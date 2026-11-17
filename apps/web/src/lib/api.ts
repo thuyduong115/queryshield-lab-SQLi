@@ -8,6 +8,10 @@ import type {
   SimulatedSession,
   SuiteResult,
   TestCaseMeta,
+  ShopRun,
+  Observation,
+  DatabaseSnapshot,
+  Mode,
 } from './types'
 
 const BASE = '/api/v1'
@@ -78,6 +82,24 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  search: (value: string, mode: Mode) =>
+    request<ShopRun>('/shop/search', {
+      method: 'POST',
+      body: JSON.stringify({ value, mode }),
+    }),
+  saveProfile: (value: string) =>
+    request<ShopRun & { profile_id: string }>('/shop/profiles', {
+      method: 'POST',
+      body: JSON.stringify({ value }),
+    }),
+  orderReport: (profile_id: string, mode: Mode) =>
+    request<ShopRun>('/shop/order-report', {
+      method: 'POST',
+      body: JSON.stringify({ profile_id, mode }),
+    }),
+  observations: () =>
+    request<{ observations: Observation[] }>('/shop/observations'),
+  database: () => request<DatabaseSnapshot>('/shop/database'),
   health: () => request<Health>('/health'),
   testCases: () => request<TestCaseMeta[]>('/labs/login-bypass/test-cases'),
   execute: (input: LoginInput) =>

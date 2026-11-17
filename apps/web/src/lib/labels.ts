@@ -34,7 +34,7 @@ export const OBSERVATION_TEXT: Record<string, string> = {
   INPUT_STARTED_COMMENT:
     'Input chứa "-- " nên PostgreSQL coi mọi thứ phía sau là chú thích.',
   PASSWORD_CHECK_COMMENTED_OUT:
-    'Điều kiện kiểm tra mật khẩu crypt(...) nằm trong chú thích, không được thực thi.',
+    'Điều kiện kiểm tra mật khẩu password = ... nằm trong chú thích, không được thực thi.',
   INPUT_STAYED_INSIDE_LITERAL:
     'Input nằm trọn trong chuỗi SQL; lần này nó không thay đổi cấu trúc câu truy vấn.',
   REJECTED_BEFORE_DATABASE:

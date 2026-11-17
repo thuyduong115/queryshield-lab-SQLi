@@ -9,9 +9,7 @@ from queryshield_api.modules.laboratory.adapters.base import (
     outcome_from_rows,
 )
 
-SECURE_LOGIN_SQL = (
-    f"{SELECT_COLUMNS} WHERE username = %s AND password_hash = crypt(%s, password_hash) LIMIT 1"
-)
+SECURE_LOGIN_SQL = f"{SELECT_COLUMNS} WHERE username = %s AND password = %s LIMIT 1"
 
 
 class SecureLoginAdapter:

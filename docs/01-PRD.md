@@ -1,5 +1,7 @@
 # 01 — Product Requirements Document
 
+> P7 thay luồng chính bằng cửa hàng: `/`, `/login`, `/profile`, `/admin`. Acceptance: cùng input/cùng fixture cho login, search và second-order; bước ghi luôn bind, bước đọc so sánh nối chuỗi/bind; admin đọc lịch sử và database thật. Mật khẩu fixture dạng thô là ngoại lệ giảng dạy đã duyệt; mật khẩu input không vào lịch sử. Xem [12-SHOP-DEMO.md](12-SHOP-DEMO.md), ưu tiên hơn mô tả SecureDesk/bcrypt cũ bên dưới.
+
 ## Problem
 A login-bypass screenshot does not explain why SQL Injection occurs or whether a patch actually works. Students need a controlled, observable, repeatable experiment comparing one flawed SQL implementation with a correctly parameterized one.
 

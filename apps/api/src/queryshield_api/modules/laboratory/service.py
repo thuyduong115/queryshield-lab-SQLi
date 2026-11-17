@@ -11,7 +11,7 @@ from queryshield_api.core.errors import LabError, database_unavailable
 from queryshield_api.core.guards import lab_disabled_error, unsafe_allowed
 from queryshield_api.db.connection import query_connection
 from queryshield_api.modules.defenses.layers import detect, passes_allow_list
-from queryshield_api.modules.experiments import repository
+from queryshield_api.modules.experiments import observations, repository
 from queryshield_api.modules.experiments.catalog import BY_ID
 from queryshield_api.modules.laboratory import inspector as insp
 from queryshield_api.modules.laboratory.adapters.base import LoginOutcome
@@ -23,7 +23,7 @@ from queryshield_api.modules.laboratory.schemas import LoginRequest, LoginRunRes
 
 SCENARIO_ID = "login-bypass"
 SIMULATION_NOTICE = (
-    "Kết quả đăng nhập SecureDesk chỉ là mô phỏng: không cấp cookie, token hay quyền "
+    "Kết quả đăng nhập cửa hàng chỉ là mô phỏng: không cấp cookie, token hay quyền "
     "nào trong QueryShield Lab."
 )
 
@@ -74,6 +74,10 @@ def execute_login(
     if request.test_case_id is not None and request.test_case_id not in BY_ID:
         raise LabError(404, "TEST_CASE_NOT_FOUND", "Không có test case với mã này.")
 
+    # Mask repeated passwords before lexical segmentation, including when a secret
+    # spans several SQL tokens. The real adapter still receives the original inputs.
+    display_username = request.username.replace(request.password, insp.PASSWORD_MASK)
+
     # The guard comes first: a disabled lab never reaches any other layer.
     if request.mode == "vulnerable":
         if not unsafe_allowed(settings):
@@ -81,11 +85,11 @@ def execute_login(
         module = _load_vulnerable()
         adapter = module.VulnerableLoginAdapter()
         inspector = insp.vulnerable_inspector(
-            request.username, module.VULNERABLE_LOGIN_TEMPLATE, module.query_parts
+            display_username, module.VULNERABLE_LOGIN_TEMPLATE, module.query_parts
         )
     else:
         adapter = SecureLoginAdapter()
-        inspector = insp.secure_inspector(request.username, SECURE_LOGIN_SQL)
+        inspector = insp.secure_inspector(display_username, SECURE_LOGIN_SQL)
 
     layers = request.layers.active(request.mode)
     alerts = detect(request.username)  # L5: observe only, never blocks
@@ -144,7 +148,7 @@ def execute_login(
     if query_error and request.layers.error_masking:
         query_error = {"sqlstate": None, "category": "masked"}
 
-    return LoginRunResponse(
+    response = LoginRunResponse(
         run_id=run_id,
         scenario_id=SCENARIO_ID,
         mode=request.mode,
@@ -168,3 +172,13 @@ def execute_login(
         created_at=created_at,
         simulation_notice=SIMULATION_NOTICE,
     )
+    # Inspector is a redacted reconstruction, never a raw DB trace or request body.
+    # Also mask a password repeated inside the username field.
+    safe_detail = {
+        "inspector": response.inspector.model_dump(),
+        "rows": observations.redact(list(outcome.rows), request.password),
+        "duration_ms": duration_ms,
+        "sqlstate": query_error["sqlstate"] if query_error else None,
+    }
+    observations.record(settings, "login", request.mode, result_code, safe_detail, run_id=run_id)
+    return response

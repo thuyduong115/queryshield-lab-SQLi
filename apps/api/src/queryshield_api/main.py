@@ -12,6 +12,7 @@ from queryshield_api.modules.evaluation.router import router as evaluation_route
 from queryshield_api.modules.experiments.repository import current_dataset_version
 from queryshield_api.modules.laboratory.router import router as labs_router
 from queryshield_api.modules.securedesk.router import router as securedesk_router
+from queryshield_api.modules.shop.router import router as shop_router
 
 logger = logging.getLogger("queryshield.api")
 
@@ -66,3 +67,4 @@ def health() -> dict[str, str | bool | None]:
 app.include_router(labs_router)
 app.include_router(securedesk_router)
 app.include_router(evaluation_router)
+app.include_router(shop_router)

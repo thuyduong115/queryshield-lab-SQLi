@@ -1,5 +1,19 @@
 # 04 — REST API Contract (v1)
 
+## P7 — Shop (fixtures-v3-shop)
+
+Tất cả route dưới đây có prefix `/api/v1/shop`:
+
+| Method | Route | Request / response |
+|---|---|---|
+| POST | `/search` | `{value: string <=128, mode: secure|vulnerable}` → `{id, operation, mode, outcome, inspector, rows, duration_ms, sqlstate}` |
+| POST | `/profiles` | `{value: string 1..128}` → `{profile_id, ...bằng chứng INSERT bind}`; mỗi lần tạo UUID mới |
+| POST | `/order-report` | `{profile_id: UUID, mode}` → bằng chứng truy vấn đọc lại tên từ DB; không nhận tên trực tiếp |
+| GET | `/observations?limit=30` | `{observations: [{id, operation, mode, outcome, detail, created_at}]}`; limit 1..100, mới nhất trước |
+| GET | `/database` | `{users, products, orders, profiles, notice}`; mật khẩu fixture dạng thô, chỉ khi cả hai cờ local + unsafe đúng |
+
+Search/report mặc định secure; NUL hoặc input quá dài trả 422 không echo. Mode vulnerable sai guard trả 403 trước DB; profile không tồn tại trả 404; DB không sẵn sàng trả 503. Lỗi cú pháp ở bản vulnerable trả `QUERY_ERROR` + SQLSTATE, không trả server message. `inspector` gồm `query_template`, `sql_preview_redacted`, `preview_label`, `parameters`; preview được diễn giải, không phải DB trace. Các dòng kết quả thật giới hạn 20. Login còn dùng endpoint cũ, đồng thời ghi quan sát đã che vào lab.observations, chung run ID. Không cấp token/cookie ở bất kỳ luồng nào. Xem [12-SHOP-DEMO.md](12-SHOP-DEMO.md).
+
 Base URL: `http://127.0.0.1:8000/api/v1` (local only). JSON content type. All timestamps UTC ISO 8601. IDs are opaque strings/UUIDs.
 
 ## Endpoints in MVP

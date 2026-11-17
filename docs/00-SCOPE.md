@@ -1,5 +1,7 @@
 # 00 — Product Charter and Scope (v1.0)
 
+> Cập nhật P7 (2026-11-13): giao diện chính là cửa hàng + `/admin`; thêm product-search và second-order trên fixture local; mật khẩu fixture dạng thô đã được người dùng phê duyệt. Phạm vi hiện tại và các ngoại lệ thay thế phần SecureDesk/bcrypt cũ được mô tả trong [12-SHOP-DEMO.md](12-SHOP-DEMO.md). Guard local, SQL unsafe chỉ trong vulnerable.py, không cấp quyền thật và che mật khẩu input vẫn bắt buộc.
+
 ## Product statement
 **QueryShield Lab** (working name) is an interactive educational platform for demonstrating, comparing, and verifying the impact of SQL injection and parameterized-query defenses in a business-like **SecureDesk** login scenario.
 

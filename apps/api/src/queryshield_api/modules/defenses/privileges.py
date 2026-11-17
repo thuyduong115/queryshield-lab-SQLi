@@ -6,7 +6,16 @@ from queryshield_api.config import Settings
 from queryshield_api.db.connection import app_connection
 from queryshield_api.db.schema import QUERY_ROLE
 
-PROBED_TABLES = ("demo.users", "demo.tickets", "lab.runs", "lab.security_events")
+PROBED_TABLES = (
+    "demo.users",
+    "demo.products",
+    "demo.orders",
+    "demo.profiles",
+    "demo.tickets",
+    "lab.runs",
+    "lab.security_events",
+    "lab.observations",
+)
 PROBED_PRIVILEGES = ("SELECT", "INSERT", "UPDATE", "DELETE")
 
 

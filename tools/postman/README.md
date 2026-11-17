@@ -1,5 +1,7 @@
 # Postman
 
+P7: thư mục collection “Cửa hàng và second-order” chạy theo thứ tự search thường → so sánh input → lưu hồ sơ → đọc lại cùng UUID ở hai mode → lịch sử → database snapshot. Chạy trong stack local bật lab. Giá trị shopProfileId chỉ là ID fixture; không phải session token. Xem [kịch bản cửa hàng](../../docs/12-SHOP-DEMO.md).
+
 - `QueryShield-Lab.postman_collection.json`: health, danh sách kịch bản, test case, T01/T02, tấn công T03 ở chế độ dễ bị tấn công, phiên SecureDesk mô phỏng, tấn công lại T03 ở chế độ tham số hóa, đọc run, chạy bộ kiểm thử, kết quả gần nhất. Mỗi request có test kiểm tra mã HTTP, `outcome`, không có `Set-Cookie` và mật khẩu không bị phản hồi lại.
 - `Local.postman_environment.json`: chỉ có `baseUrl=http://127.0.0.1:8000/api/v1`. Đổi cổng nếu bạn đặt `API_PORT` khác.
 

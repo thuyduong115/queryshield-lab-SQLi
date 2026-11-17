@@ -10,6 +10,12 @@ import { SecureDeskDashboard } from './features/securedesk/SecureDeskDashboard'
 import { SecureDeskLogin } from './features/securedesk/SecureDeskLogin'
 import { TestResultsPage } from './features/test-results/TestResultsPage'
 import { HealthProvider } from './lib/health'
+import { ShopFrame } from './features/shop/ShopFrame'
+import { StorePage } from './features/shop/StorePage'
+import { ShopLogin } from './features/shop/ShopLogin'
+import { ProfilePage } from './features/shop/ProfilePage'
+import { AdminPage } from './features/shop/AdminPage'
+import './features/shop/shop.css'
 
 function NotFound() {
   return (
@@ -25,7 +31,7 @@ export default function App() {
     <HealthProvider>
       <Routes>
         <Route element={<LabShell />}>
-          <Route index element={<OverviewPage />} />
+          <Route path="lab/overview" element={<OverviewPage />} />
           <Route path="demo" element={<DemoPage />} />
           <Route path="lab/login-bypass" element={<LabPage />} />
           <Route path="lab/comparison" element={<ComparisonPage />} />
@@ -33,6 +39,12 @@ export default function App() {
           <Route path="lab/defenses" element={<DefensesPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
+        <Route element={<ShopFrame />}>
+          <Route index element={<StorePage />} />
+          <Route path="login" element={<ShopLogin />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
+        <Route path="admin" element={<AdminPage />} />
         <Route path="app/login" element={<SecureDeskLogin />} />
         <Route path="app/dashboard" element={<SecureDeskDashboard />} />
       </Routes>
