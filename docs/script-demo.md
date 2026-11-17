@@ -31,15 +31,15 @@ wsl docker compose --env-file .env -f infra/compose.yaml run --rm lab-admin chec
 
 Kết quả mong đợi của `check`: `dataset_version: fixtures-v3-shop`, `lab.runs: 0`.
 
-Mở sẵn các tab:
+Mở sẵn các tab. Các URL dưới đây dùng cổng của máy tác giả (`WEB_PORT=15173`, `API_PORT=18000`). Nếu bạn giữ mặc định trong `.env.example`, thay bằng `5173` và `8000`.
 
-| Tab | URL |
-|---|---|
-| Cửa hàng | http://127.0.0.1:15173/ |
-| Đăng nhập | http://127.0.0.1:15173/login |
-| Hồ sơ & đơn hàng | http://127.0.0.1:15173/profile |
-| Bảng quan sát SQL | http://127.0.0.1:15173/admin |
-| Health API | http://127.0.0.1:18000/api/v1/health |
+| Tab                   | URL                                  |
+| --------------------- | ------------------------------------ |
+| Cửa hàng            | http://127.0.0.1:15173/              |
+| Đăng nhập          | http://127.0.0.1:15173/login         |
+| Hồ sơ & đơn hàng | http://127.0.0.1:15173/profile       |
+| Bảng quan sát SQL   | http://127.0.0.1:15173/admin         |
+| Health API            | http://127.0.0.1:18000/api/v1/health |
 
 Mở trong editor để chiếu code:
 
@@ -50,6 +50,7 @@ apps/api/src/queryshield_api/modules/laboratory/adapters/shop_queries.py
 ```
 
 Ô chọn **Bản xử lý SQL** trên thanh vàng:
+
 - `Phần 1 · Không bảo vệ (nối chuỗi)`: bản có lỗ hổng
 - `Phần 2 · Prepared Statements`: bản bind tham số
 
@@ -59,35 +60,43 @@ apps/api/src/queryshield_api/modules/laboratory/adapters/shop_queries.py
 
 Tài khoản fixture:
 
-| username | password |
-|---|---|
+| username      | password            |
+| ------------- | ------------------- |
 | `student01` | `StudentDemo123!` |
-| `admin` | `AdminDemo123!` |
-| `staff01` | `StaffDemo123!` |
-| `o'connor` | `OConnorDemo123!` |
+| `admin`     | `AdminDemo123!`   |
+| `staff01`   | `StaffDemo123!`   |
+| `o'connor`  | `OConnorDemo123!` |
 
 ### 1.1 Đối chứng: đăng nhập hợp lệ (chạy ở cả hai bản)
 
 Tên đăng nhập:
+
 ```text
 student01
 ```
+
 Mật khẩu:
+
 ```text
 StudentDemo123!
 ```
+
 Mong đợi: **thành công** ở cả hai bản.
 
 ### 1.2 Đối chứng: sai mật khẩu (chạy ở cả hai bản)
 
 Tên đăng nhập:
+
 ```text
 student01
 ```
+
 Mật khẩu:
+
 ```text
 wrong-password
 ```
+
 Mong đợi: **thất bại** ở cả hai bản.
 
 ### 1.3 Tấn công: bỏ qua kiểm tra mật khẩu
@@ -95,19 +104,25 @@ Mong đợi: **thất bại** ở cả hai bản.
 Chọn `Phần 1 · Không bảo vệ (nối chuỗi)`.
 
 Tên đăng nhập (có dấu cách cuối):
+
 ```text
-admin' -- 
+admin' --
 ```
+
 Mật khẩu (cố ý sai):
+
 ```text
 wrong-password
 ```
+
 Mong đợi: **Đăng nhập mô phỏng thành công: admin**. Không có cookie hay token nào được cấp.
 
 SQL mà bản nối chuỗi tạo ra (bảng quan sát hiển thị bản đã che mật khẩu):
+
 ```sql
 SELECT id, username, role FROM demo.users WHERE username = 'admin' -- ' AND password = '[mật khẩu đã ẩn]' LIMIT 1
 ```
+
 Ý cần nói: dấu `'` đóng chuỗi sớm, `-- ` biến phần kiểm tra mật khẩu thành chú thích.
 
 ### 1.4 Phòng thủ: cùng input, bản bind
@@ -116,21 +131,27 @@ SELECT id, username, role FROM demo.users WHERE username = 'admin' -- ' AND pass
 Mong đợi: **tên đăng nhập hoặc mật khẩu không đúng**.
 
 SQL bản an toàn:
+
 ```sql
 SELECT id, username, role FROM demo.users WHERE username = %s AND password = %s LIMIT 1
 ```
+
 Tham số gửi riêng: `["admin' -- ", "[mật khẩu đã ẩn]"]`. PostgreSQL tìm user có tên đúng bằng chuỗi `admin' -- `, không có nên từ chối.
 
 ### 1.5 (Tùy chọn) Tên hợp lệ có dấu nháy
 
 Tên đăng nhập:
+
 ```text
 o'connor
 ```
+
 Mật khẩu:
+
 ```text
 OConnorDemo123!
 ```
+
 Mong đợi: bản nối chuỗi **lỗi cú pháp SQL** (`QUERY_ERROR`), còn bản bind **đăng nhập đúng**. Ví dụ này cho thấy nối chuỗi làm hỏng cả người dùng hợp lệ, không chỉ là lỗ hổng.
 
 ---
@@ -142,20 +163,25 @@ Mong đợi: bản nối chuỗi **lỗi cú pháp SQL** (`QUERY_ERROR`), còn b
 ```text
 Bàn phím
 ```
+
 Mong đợi: cả hai bản cùng trả **Bàn phím cơ K68**.
 
 ### 2.2 Tấn công: lộ sản phẩm chưa công khai
 
 Chọn `Phần 1 · Không bảo vệ (nối chuỗi)`, nhập:
+
 ```text
-' OR true -- 
+' OR true --
 ```
+
 Mong đợi: **7 sản phẩm**, gồm cả `[Nội bộ] Bộ thử nghiệm chưa mở bán` (published = false).
 
 SQL bản nối chuỗi:
+
 ```sql
 SELECT id, name, category, price, published FROM demo.products WHERE name ILIKE '%' OR true -- %' AND published = true ORDER BY id LIMIT 20
 ```
+
 Ý cần nói: `OR true` làm điều kiện luôn đúng, `-- ` xóa bộ lọc `published = true`.
 
 ### 2.3 Phòng thủ: cùng input, bản bind
@@ -172,17 +198,20 @@ Lưu ý khi trả lời câu hỏi: `%` và `_` vẫn là wildcard của ILIKE �
 ### 3.1 Đối chứng
 
 Ô **Tên khách hàng dùng tra đơn**:
+
 ```text
 student01
 ```
+
 Bấm **Lưu hồ sơ**, rồi **Xem đơn hàng** ở cả hai bản.
 Mong đợi: cả hai bản trả **2 đơn** bình thường của student01.
 
 ### 3.2 Lưu payload (chỉ lưu MỘT lần)
 
 ```text
-admin' -- 
+admin' --
 ```
+
 Bấm **Lưu hồ sơ**. Mong đợi: `Đã lưu nguyên văn: admin' -- `.
 Trên `/admin`: thao tác **Lưu hồ sơ** chạy bằng `Prepared Statements · SAVED`, tức INSERT có bind, an toàn.
 
@@ -192,6 +221,7 @@ Chọn `Phần 1 · Không bảo vệ (nối chuỗi)`, bấm **Xem đơn hàng*
 Mong đợi: **2 dòng** của admin, gồm đơn `internal` `[Nội bộ] Đơn thử nghiệm`.
 
 SQL bước đọc:
+
 ```sql
 SELECT id, customer_name, item, total, visibility FROM demo.orders WHERE customer_name = 'admin' -- ' AND visibility = 'public' ORDER BY id LIMIT 20
 ```
@@ -202,6 +232,7 @@ SELECT id, customer_name, item, total, visibility FROM demo.orders WHERE custome
 Mong đợi: **0 dòng**.
 
 Câu kết luận:
+
 > Prepared Statements chỉ bảo vệ chỗ có bind. Bước ghi có bind không bảo vệ được một truy vấn đọc lại mà vẫn nối chuỗi. Bind ở cả bước ghi lẫn bước đọc thì hết lỗ hổng. Prepared Statements không bị phá vỡ.
 
 ---
@@ -242,6 +273,7 @@ WHERE grantee LIKE 'qs_%' ORDER BY grantee, table_schema, table_name;
 ```
 
 Thoát psql:
+
 ```text
 \q
 ```
@@ -251,6 +283,7 @@ Thoát psql:
 ## 5. Postman / Newman
 
 Import vào Postman:
+
 ```text
 tools/postman/QueryShield-Lab.postman_collection.json
 tools/postman/Local.postman_environment.json
@@ -259,21 +292,25 @@ tools/postman/Local.postman_environment.json
 Body mẫu để gõ tay:
 
 `POST http://127.0.0.1:18000/api/v1/labs/login-bypass/execute`
+
 ```json
 { "mode": "vulnerable", "username": "admin' -- ", "password": "wrong-password" }
 ```
 
 `POST http://127.0.0.1:18000/api/v1/shop/search`
+
 ```json
 { "mode": "vulnerable", "value": "' OR true -- " }
 ```
 
 `POST http://127.0.0.1:18000/api/v1/shop/profiles`
+
 ```json
 { "value": "admin' -- " }
 ```
 
 `POST http://127.0.0.1:18000/api/v1/shop/order-report` (dán `profile_id` lấy từ response trên)
+
 ```json
 { "mode": "vulnerable", "profile_id": "<profile_id>" }
 ```
