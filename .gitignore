@@ -21,7 +21,7 @@ dist/
 .vite/
 coverage/
 playwright-report/
-test-results/
+/tests/e2e/test-results/
 
 # Editor / OS
 .vscode/*.local.json
