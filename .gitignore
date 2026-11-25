@@ -33,6 +33,7 @@ Thumbs.db
 *.log
 *.sqlite3
 pgdata/
+.local/
 .tmp/
 
 # Local AI/Codex working instructions and execution notes

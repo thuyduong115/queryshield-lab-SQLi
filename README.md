@@ -154,6 +154,9 @@ Project **không** dùng lọc từ khóa hay escape thủ công làm cách sử
 
 **Yêu cầu:** chỉ cần Docker (Docker Desktop, hoặc Docker trong WSL) và Docker Compose v2. Build, cài dependency và test đều chạy trong container.
 
+> [!TIP]
+> Máy Windows không có Docker? Xem [docs/chay-khong-docker.md](docs/chay-khong-docker.md): chỉ cần Python và Node.js, chạy `scripts\native\lab.cmd setup` rồi `scripts\native\lab.cmd start`.
+
 ```bash
 git clone https://github.com/thuyduong115/queryshield-lab-SQLi.git
 cd queryshield-lab-SQLi
